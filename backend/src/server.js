@@ -1,24 +1,20 @@
 import express from "express";
-import dotenv from "dotenv";
+import "dotenv/config";
 
-dotenv.config();
+import authRoutes from "./routes/auth.route.js";
+
+
+import { connectDB } from "./lib/db.js";
 
 const app = express();
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT;
 
-app.get ("api/auth/login", (req, res) => {
-  res.send("login" );
-});
+app.use(express.json());
 
-app.get ("/api/auth/signup", (req, res) => {
-  res.send("signup" );
-});
-
-app.get ("/api/auth/logout", (req, res) => {
-  res.send("logout" );
-});
+app.use("/api/auth", authRoutes);
 
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  connectDB();
 });
