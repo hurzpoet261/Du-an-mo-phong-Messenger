@@ -7,6 +7,7 @@ import NotificationsPage from "./pages/NotificationsPage.jsx";
 import CallPage from "./pages/CallPage.jsx";
 import ChatPage from "./pages/ChatPage.jsx";
 import OnboardingPage from "./pages/OnboardingPage.jsx";
+import StatusFeedPage from "./pages/StatusFeedPage.jsx";
 
 import { Toaster } from "react-hot-toast";
 
@@ -61,6 +62,30 @@ const App = () => {
             ) : (
               <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
             )
+          }
+        />
+        {/* <Route
+          path="/search"
+          element={
+            isAuthenticated && isOnboarded ? (
+              <Layout showSidebar={true}>
+                <SearchPage />
+              </Layout>
+            ) : (
+              <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
+            )
+          }
+        /> */}
+        <Route
+          path="/status"
+          element={
+            // isAuthenticated && isOnboarded ? (
+              (<Layout showSidebar={true}>
+                <StatusFeedPage />
+              </Layout>)
+            // ) : (
+            //   <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
+            // )
           }
         />
         <Route
