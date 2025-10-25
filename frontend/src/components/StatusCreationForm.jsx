@@ -12,6 +12,11 @@ function StatusCreationForm({ currentUser, onPostCreated }) {
         setFile(event.target.files[0]);
     };
 
+    const triggerFileInput = () => {
+        fileInputRef.current.value = null; 
+        fileInputRef.current.click();
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!content.trim() && !file) return;
@@ -19,52 +24,46 @@ function StatusCreationForm({ currentUser, onPostCreated }) {
 
         try {
             const formData = new FormData();
-            formData.append('content', content);
+            if (content.trim()) {
+                formData.append('content', content.trim());
+            }
             if (file) {
                 formData.append('image', file); 
             }
+            
             const newPost = await postService.createPost(formData);
             
             if (onPostCreated) {
-                onPostCreated({...newPost, userId: currentUser}); 
+                // 🟢 SỬA LỖI: CHỈ GỌI CALLBACK VỚI BÀI VIẾT ĐÃ NHẬN TỪ SERVER
+                onPostCreated(newPost); 
             }
             
-            // Reset trạng thái sau khi thành công
             setContent('');
             setFile(null);
-            if (fileInputRef.current) fileInputRef.current.value = null;
             
         } catch (error) {
             console.error("Lỗi tạo bài viết:", error.response?.data || error.message);
-            
-            // 🟢 Xử lý lỗi token cụ thể
-            if (error.message.includes("UNAUTHORIZED_NO_TOKEN")) {
+            const errorMessage = error.response?.data?.error || error.message;
+            if (errorMessage.includes("UNAUTHORIZED")) {
                 alert("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại!");
-                // Lý tưởng là gọi hàm logout và chuyển hướng
             } else {
-                alert(`Đăng bài thất bại: ${error.response?.data?.error || error.message}.`);
+                 alert(`Đăng bài thất bại: ${errorMessage}.`);
             }
-            
         } finally {
             setIsPosting(false);
         }
     };
     
-    // 🟢 Hàm kích hoạt input file (Dùng cho cả Ảnh và Video)
-    const triggerFileInput = () => {
-        fileInputRef.current.click();
-    };
-
     return (
         <form onSubmit={handleSubmit} className="card bg-base-100 shadow-xl mb-4">
             <div className="card-body p-4">
                 
-                {/* ẨN input type="file": chấp nhận image/*,video/* */}
                 <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,video/*" />
 
                 <div className="flex items-center gap-3">
                     <div className="avatar size-10">
-                        <img src={currentUser.avatar || 'default_avatar.png'} alt="Avatar" className="rounded-full object-cover" />
+                        {/* 🟢 Dùng profilePic từ currentUser */}
+                        <img src={currentUser.profilePic || 'default_avatar.png'} alt="Avatar" className="rounded-full object-cover" />
                     </div>
                     
                     <textarea
@@ -81,15 +80,12 @@ function StatusCreationForm({ currentUser, onPostCreated }) {
                 <div className="divider my-1"></div> 
 
                 <div className="flex justify-around gap-2">
-                    {/* 🟢 Nút Ảnh: Kích hoạt chọn file */}
                     <button type="button" className="btn btn-sm btn-ghost flex-grow" onClick={triggerFileInput}>
                         <Image size={18} className="text-green-500" /> Ảnh
                     </button>
-                    {/* 🟢 Nút Video: Kích hoạt chọn file */}
                     <button type="button" className="btn btn-sm btn-ghost flex-grow" onClick={triggerFileInput}>
                         <Video size={18} className="text-purple-500" /> Video
                     </button>
-                    {/* ... (Các nút khác giữ nguyên) ... */}
                     <button 
                         type="submit" 
                         className="btn btn-sm btn-primary flex-grow"
