@@ -1,8 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react"; //
 import { ShipWheelIcon } from "lucide-react";
-import { Link } from "react-router";
+import { Link } from "react-router"; // 
 
 import useSignUp from "../hooks/useSignUp";
+
+const carouselImages = [
+  "/assets/1.jpg",
+  "/assets/2.png",
+  "/assets/3.JPG",
+];
 
 const SignUpPage = () => {
   const [signupData, setSignupData] = useState({
@@ -10,19 +16,10 @@ const SignUpPage = () => {
     email: "",
     password: "",
   });
+  
+  // 🟢 State để theo dõi chỉ mục ảnh hiện tại
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // This is how we did it at first, without using our custom hook
-  // const queryClient = useQueryClient();
-  // const {
-  //   mutate: signupMutation,
-  //   isPending,
-  //   error,
-  // } = useMutation({
-  //   mutationFn: signup,
-  //   onSuccess: () => queryClient.invalidateQueries({ queryKey: ["authUser"] }),
-  // });
-
-  // This is how we did it using our custom hook - optimized version
   const { isPending, error, signupMutation } = useSignUp();
 
   const handleSignup = (e) => {
@@ -30,15 +27,26 @@ const SignUpPage = () => {
     signupMutation(signupData);
   };
 
+  // 🟢 Logic cho Carousel tự động chạy
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        (prevIndex + 1) % carouselImages.length
+      );
+    }, 5000); // Thay đổi ảnh mỗi 5 giây (5000ms)
+
+    return () => clearInterval(interval); // Dọn dẹp interval khi component unmount
+  }, []); // [] đảm bảo useEffect chỉ chạy một lần khi mount
+
   return (
     <div
       className="h-screen flex items-center justify-center p-4 sm:p-6 md:p-8"
       data-theme="forest"
     >
       <div className="border border-primary/25 flex flex-col lg:flex-row w-full max-w-5xl mx-auto bg-base-100 rounded-xl shadow-lg overflow-hidden">
-        {/* SIGNUP FORM - LEFT SIDE */}
+        {/* SIGNUP FORM - LEFT SIDE (Giữ nguyên) */}
         <div className="w-full lg:w-1/2 p-4 sm:p-8 flex flex-col">
-          {/* LOGO */}
+          {/* ... LOGO, ERROR MESSAGE, FORM ... */}
           <div className="mb-4 flex items-center justify-start gap-2">
             <ShipWheelIcon className="size-9 text-primary" />
             <span className="text-3xl font-bold font-mono bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary tracking-wider">
@@ -46,7 +54,6 @@ const SignUpPage = () => {
             </span>
           </div>
 
-          {/* ERROR MESSAGE IF ANY */}
           {error && (
             <div className="alert alert-error mb-4">
               <span>{error.response.data.message}</span>
@@ -122,7 +129,7 @@ const SignUpPage = () => {
                   </div>
                 </div>
 
-                <button className="btn btn-primary w-full" type="submit">
+                <button className="btn btn-primary w-full" type="submit" disabled={isPending}>
                   {isPending ? (
                     <>
                       <span className="loading loading-spinner loading-xs"></span>
@@ -146,12 +153,17 @@ const SignUpPage = () => {
           </div>
         </div>
 
-        {/* SIGNUP FORM - RIGHT SIDE */}
-        <div className="hidden lg:flex w-full lg:w-1/2 bg-primary/10 items-center justify-center">
-          <div className="max-w-md p-8">
-            {/* Illustration */}
-            <div className="relative aspect-square max-w-sm mx-auto">
-              <img src="/i.png" alt="Language connection illustration" className="w-full h-full" />
+        {/* 🟢 SIGNUP FORM - RIGHT SIDE */}
+        <div className="hidden lg:flex w-full lg:w-1/2 bg-primary/10 items-center justify-center relative"> 
+          <div className="max-w-md p-8 text-center"> {/* Thêm text-center để căn giữa text */}
+            {/* Carousel Images */}
+            <div className="relative aspect-square max-w-sm mx-auto overflow-hidden rounded-lg">
+                <img 
+                    src={carouselImages[currentImageIndex]} 
+                    alt="Language connection illustration" 
+                    className="w-full h-full object-contain transition-opacity duration-1000 ease-in-out" 
+                    key={currentImageIndex} // Key để React force re-render và kích hoạt transition
+                />
             </div>
 
             <div className="text-center space-y-3 mt-6">
@@ -160,6 +172,19 @@ const SignUpPage = () => {
                 Practice conversations, make friends, and improve your language skills together
               </p>
             </div>
+          </div>
+          
+          {/* 🟢 Tùy chọn: Indicators cho Carousel */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+            {carouselImages.map((_, idx) => (
+              <span
+                key={idx}
+                className={`block h-2 w-2 rounded-full cursor-pointer transition-all duration-300 ${
+                  currentImageIndex === idx ? "bg-primary w-4" : "bg-primary/50"
+                }`}
+                onClick={() => setCurrentImageIndex(idx)}
+              ></span>
+            ))}
           </div>
         </div>
       </div>
