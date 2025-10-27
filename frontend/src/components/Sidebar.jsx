@@ -1,6 +1,6 @@
-import { Link, useLocation } from "react-router";
+import { NavLink, Link, useLocation } from "react-router";
 import useAuthUser from "../hooks/useAuthUser";
-import { BellIcon, HomeIcon, SearchIcon, ShipWheelIcon, UsersIcon } from "lucide-react";
+import { BellIcon, HomeIcon, SearchIcon, ShipWheelIcon, UsersIcon, FileTextIcon } from "lucide-react";
 
 const Sidebar = () => {
   const { authUser } = useAuthUser();
