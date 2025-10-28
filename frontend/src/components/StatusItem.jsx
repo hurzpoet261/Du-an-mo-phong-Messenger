@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { Heart, MessageSquare, MoreHorizontal } from 'lucide-react'; 
 import { postService } from '../services/postService.js';
 import { formatDistanceToNowStrict, parseISO } from 'date-fns'; 
-import { vi } from 'date-fns/locale';
+import { vi } from "date-fns/locale/vi";
 
 function StatusItem({ post, currentUserId, updateLikesInFeed, updatePostInFeed }) { 
     
     const isLiked = post.likes.includes(currentUserId);
     const [commentText, setCommentText] = useState('');
     
-    // 🟢 Cập nhật: Handle Like
+    //  Cập nhật: Handle Like
     const handleLike = async () => {
         try {
             const { postId, likes } = await postService.likePost(post._id);
@@ -19,7 +19,7 @@ function StatusItem({ post, currentUserId, updateLikesInFeed, updatePostInFeed }
         }
     };
     
-    // 🟢 Cập nhật: Handle Comment
+    //  Cập nhật: Handle Comment
     const handleCommentSubmit = async (e) => {
         e.preventDefault();
         if (!commentText.trim()) return;

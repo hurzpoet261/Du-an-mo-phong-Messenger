@@ -1,68 +1,45 @@
-import axios from 'axios';
+import { axiosInstance } from '../lib/axios'; // 1. Dùng axiosInstance chung
 
-const API_URL = 'http://localhost:5001/api/posts/'; 
-const getToken = () => localStorage.getItem('token'); 
+const API_URL = '/posts/'; 
 
-const getAuthHeaders = () => {
-    const token = getToken();
-    if (!token) {
-        throw new Error("UNAUTHORIZED_NO_TOKEN"); 
-    }
-    return {
-        'Authorization': `Bearer ${token}`,
-    };
-};
+// 2. XÓA BỎ getAuthHeaders và getToken
 
-// 1. Tạo Bài Viết (POST /api/posts/)
+// 1. Tạo Bài Viết (ĐÃ SỬA)
 const createPost = async (formData) => {
-    const headers = getAuthHeaders();
-    const response = await axios.post(API_URL, formData, {
-        headers: {
-            ...headers,
-            'Content-Type': 'multipart/form-data', 
-        },
-    });
-    return response.data; // Trả về Post đã được populate "author"
+  // 3. Xóa khối 'headers'. Axios sẽ tự động xử lý FormData.
+  const response = await axiosInstance.post(API_URL, formData);
+  return response.data;
 };
 
-// 2. Lấy Dòng Thời Gian (GET /api/posts)
+// 2. Lấy Dòng Thời Gian (Đã sửa)
 const getAllPosts = async () => {
-    const headers = getAuthHeaders();
-    const response = await axios.get(API_URL, { 
-        headers: headers,
-    });
-    return response.data; 
+  // Không cần header, axiosInstance sẽ tự gửi cookie
+  const response = await axiosInstance.get(API_URL);
+  return response.data; 
 };
 
-// 3. Thao Tác Like (PUT /api/posts/:id/like)
+// 3. Thao Tác Like (Đã sửa)
 const likePost = async (postId) => {
-    const headers = getAuthHeaders();
-    const response = await axios.put(`${API_URL}${postId}/like`, {}, {
-        headers: headers,
-    });
-    // BE chỉ trả về mảng likes. FE cần ID để cập nhật state.
-    return { 
-        postId: postId, 
-        likes: response.data.likes 
-    }; 
+  const response = await axiosInstance.put(`${API_URL}${postId}/like`);
+  return { 
+    postId: postId, 
+    likes: response.data.likes 
+  }; 
 };
 
-// 4. Thêm Bình luận (POST /api/posts/:id/comment)
+// 4. Thêm Bình luận (Giữ nguyên)
 const addComment = async (postId, text) => {
-    const headers = getAuthHeaders();
-    const response = await axios.post(`${API_URL}${postId}/comment`, { text }, {
-        headers: {
-            ...headers,
-            'Content-Type': 'application/json',
-        },
-    });
-    // BE trả về toàn bộ Post đã được cập nhật và populate comments
-    return response.data;
+  const response = await axiosInstance.post(`${API_URL}${postId}/comment`, { text }, {
+    headers: {
+        'Content-Type': 'application/json',
+    }
+  });
+  return response.data;
 };
 
 export const postService = {
-    createPost,
-    getAllPosts,
-    likePost,
-    addComment,
+  createPost,
+  getAllPosts,
+  likePost,
+  addComment,
 };
