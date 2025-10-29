@@ -2,23 +2,22 @@ import { axiosInstance } from '../lib/axios'; // 1. Dùng axiosInstance chung
 
 const API_URL = '/posts/'; 
 
-// 2. XÓA BỎ getAuthHeaders và getToken
 
-// 1. Tạo Bài Viết (ĐÃ SỬA)
+// 1. Tạo Bài Viết 
 const createPost = async (formData) => {
   // 3. Xóa khối 'headers'. Axios sẽ tự động xử lý FormData.
   const response = await axiosInstance.post(API_URL, formData);
   return response.data;
 };
 
-// 2. Lấy Dòng Thời Gian (Đã sửa)
+// 2. Lấy Dòng Thời Gian
 const getAllPosts = async () => {
   // Không cần header, axiosInstance sẽ tự gửi cookie
   const response = await axiosInstance.get(API_URL);
   return response.data; 
 };
 
-// 3. Thao Tác Like (Đã sửa)
+// 3. Thao Tác Like
 const likePost = async (postId) => {
   const response = await axiosInstance.put(`${API_URL}${postId}/like`);
   return { 
@@ -27,7 +26,7 @@ const likePost = async (postId) => {
   }; 
 };
 
-// 4. Thêm Bình luận (Giữ nguyên)
+// 4. Thêm Bình luận
 const addComment = async (postId, text) => {
   const response = await axiosInstance.post(`${API_URL}${postId}/comment`, { text }, {
     headers: {
