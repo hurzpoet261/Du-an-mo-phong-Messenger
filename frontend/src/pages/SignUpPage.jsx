@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react"; //
 import { ShipWheelIcon } from "lucide-react";
-import { Link } from "react-router"; // 
+import { Link } from "react-router-dom"; // 
 
 import useSignUp from "../hooks/useSignUp";
 
 const carouselImages = [
-  "/assets/1.jpg",
-  "/assets/2.png",
-  "/assets/3.JPG",
+  "../src/assets/1.jpg",
+  "../src/assets/2.jpg",
+  "../src/assets/3.jpg",
 ];
 
 const SignUpPage = () => {

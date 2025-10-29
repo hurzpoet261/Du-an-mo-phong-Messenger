@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { ShipWheelIcon } from "lucide-react";
-import { Link, useNavigate } from "react-router"; 
+import { Link, useNavigate } from "react-router-dom"; 
 import useLogin from "../hooks/useLogin"; // Hook Login của bạn
 
 // Mảng các đường dẫn ảnh cho carousel
 const carouselImages = [
-  "/assets/1.jpg",
-  "/assets/2.png",
-  "/assets/3.JPG",
+  "../src/assets/1.jpg",
+  "../src/assets/2.jpg",
+  "../src/assets/3.jpg",
 ];
 
 const LoginPage = () => {
