@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { Heart, MessageSquare, MoreHorizontal } from 'lucide-react'; 
+import { Heart, MessageSquare, MoreHorizontal, Trash2 } from 'lucide-react'; 
 import { postService } from '../services/postService.js';
 import { formatDistanceToNowStrict, parseISO } from 'date-fns'; 
 import { vi } from "date-fns/locale/vi";
 
-function StatusItem({ post, currentUserId, updateLikesInFeed, updatePostInFeed }) { 
+function StatusItem({ post, currentUserId, updateLikesInFeed, updatePostInFeed, onDeleteSuccess }) { 
     
     const isLiked = post.likes.includes(currentUserId);
     const [commentText, setCommentText] = useState('');
+
+    const isAuthor = post.author?._id === currentUserId;
     
     //  Cập nhật: Handle Like
     const handleLike = async () => {
@@ -35,6 +37,23 @@ function StatusItem({ post, currentUserId, updateLikesInFeed, updatePostInFeed }
         }
     };
 
+// Xử lý XÓA BÀI ĐĂNG
+    const handleDelete = async () => {
+        if (!window.confirm("Bạn có chắc chắn muốn xóa bài đăng này không?")) {
+            return;
+        }
+        
+        try {
+            await postService.deletePost(post._id);
+            if (onDeleteSuccess) {
+                onDeleteSuccess(post._id); // Báo hiệu FeedList xóa bài viết
+            }
+        } catch (error) {
+            console.error("Lỗi xóa bài đăng:", error.response?.data || error.message);
+            alert(error.response?.data?.message || "Lỗi: Bạn không thể xóa bài đăng này.");
+        }
+    };
+
     const timeAgo = (dateString) => {
         if (!dateString) return 'Vừa xong';
         try {
@@ -57,7 +76,25 @@ function StatusItem({ post, currentUserId, updateLikesInFeed, updatePostInFeed }
                         <span className="font-semibold text-sm">{post.author?.fullName}</span>
                         <span className="text-xs text-gray-500">{timeAgo(post.createdAt)}</span>
                     </div>
-                    <MoreHorizontal size={20} className="text-gray-500 cursor-pointer" /> 
+                    {isAuthor ? (
+                            <div className="dropdown dropdown-end ml-auto">
+                                <div tabIndex={0} role="button" className="btn btn-ghost btn-sm btn-circle p-0">
+                                    <MoreHorizontal size={20} className="text-gray-500 cursor-pointer" />
+                                </div>
+                                <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-36">
+                                    {/* MỤC XÓA BÀI */}
+                                    <li>
+                                        <button onClick={handleDelete} className="text-error">
+                                            <Trash2 size={16} />
+                                            Xóa Bài Đăng
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        ) : (
+                            // Nếu không phải tác giả, hiển thị ba chấm tĩnh
+                            <MoreHorizontal size={20} className="text-gray-500 cursor-pointer ml-auto" />
+                    )}
                 </div>
 
                 {/* 2. Nội dung Text & Media */}
