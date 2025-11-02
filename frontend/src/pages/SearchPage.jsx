@@ -299,7 +299,7 @@ const SearchPage = () => {
           placeholder={searchType === 'users' ? "Tìm kiếm tên người dùng..." : "Tìm kiếm nội dung bài viết..."}
           className="input input-bordered w-full pl-10 text-lg py-6"
         />
-        <button type="submit" className='absolute left-3 top-1/2 -translate-y-1/2 btn btn-ghost btn-circle'>
+        <button type="submit" className='absolute right-3 top-1/2 -translate-y-1/2 btn btn-ghost btn-circle'>
             <Search className='size-5 text-base-content/50' />
         </button>
       </form>
