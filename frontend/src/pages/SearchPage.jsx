@@ -160,7 +160,6 @@ const SearchPage = () => {
   const [myContext, setMyContext] = useState({ friends: [], sentRequests: [] });
   const navigate = useNavigate();
 
-  // HÀM LẤY BỐI CẢNH (CONTEXT)
   useEffect(() => {
     const fetchMyContext = async () => {
         try {
@@ -168,7 +167,6 @@ const SearchPage = () => {
                 headers: {
                   'Content-Type': 'application/json',
                 },
-                // ĐÂY LÀ DÒNG SỬA LỖI 1 (Lỗi 401 khi tải trang)
                 credentials: 'include' 
             });
             const data = await res.json();
@@ -179,14 +177,12 @@ const SearchPage = () => {
                 });
             }
         } catch (error) {
-            // Lỗi SyntaxError sẽ được bắt ở đây
             console.error("Lỗi fetch context:", error); 
         }
     };
     fetchMyContext();
   }, []); 
 
-  // HÀM TÌM KIẾM CHÍNH
   const handleSearch = async (e) => {
     if (e) e.preventDefault(); 
     if (!keyword.trim()) return;
@@ -200,7 +196,6 @@ const SearchPage = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        // ĐÂY LÀ DÒNG SỬA LỖI 2 (Lỗi 401 khi tìm kiếm)
         credentials: 'include'
       });
       const data = await res.json();
@@ -213,7 +208,6 @@ const SearchPage = () => {
     }
   };
   
-  // HÀM GỬI YÊU CẦU KẾT BẠN
   const handleSendRequest = async (recipientId) => {
     try {
         const res = await fetch(`/api/users/friend-request/${recipientId}`, { 
@@ -228,8 +222,7 @@ const SearchPage = () => {
             setMyContext(prev => ({
                 ...prev,
                 sentRequests: [...prev.sentRequests, recipientId]
-            }));
-            alert("Đã gửi yêu cầu!"); 
+            })); 
         } else {
             const data = await res.json();
             alert(`Lỗi: ${data.message}`);

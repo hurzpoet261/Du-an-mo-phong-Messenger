@@ -5,7 +5,8 @@ import { postService } from '../services/postService.js';
 function StatusFeedList({ newPost, currentUserId, onPostInserted }) { 
     const [posts, setPosts] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [isInitialLoadDone, setIsInitialLoadDone] = useState(false); 
+    const [isInitialLoadDone, setIsInitialLoadDone] = useState(false);
+    const [error, setError] = useState(null); 
 
     // 🟢 HÀM XỬ LÝ LIKE: Cập nhật mảng likes dựa trên postId
     const updateLikesInFeed = (postId, newLikes) => {
@@ -23,6 +24,10 @@ function StatusFeedList({ newPost, currentUserId, onPostInserted }) {
                 post._id === updatedPost._id ? updatedPost : post
             )
         );
+    };
+
+    const handleDeleteSuccess = (deletedPostId) => {
+        setPosts(prevPosts => prevPosts.filter(post => post._id !== deletedPostId));
     };
 
     const loadPosts = useCallback(async () => {
