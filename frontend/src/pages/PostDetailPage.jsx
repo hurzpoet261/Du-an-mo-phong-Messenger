@@ -1,23 +1,37 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
 import { postService } from '../services/postService.js'; 
-import StatusItem from '../components/StatusItem.jsx'; // Tái sử dụng để hiển thị toàn bộ nội dung
+import StatusItem from '../components/StatusItem.jsx';
 
 const PostDetailPage = () => {
     const { postId } = useParams();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     
     // 🟢 Tải chi tiết bài viết
     const { data: post, isLoading, error } = useQuery({
         queryKey: ['postDetail', postId],
-        queryFn: () => postService.getPostById(postId), // 🚨 Cần triển khai hàm getPostById
+        queryFn: () => postService.getPostById(postId),
         enabled: !!postId,
     });
     
     const handleClose = () => {
         navigate(-1); // Quay lại trang trước (SearchPage)
+    };
+    const handleModalUpdate = (updatedPost) => {
+        // Cập nhật dữ liệu chi tiết bài post trong cache React Query
+        queryClient.setQueryData(['postDetail', postId], updatedPost);
+    };
+
+    // Hàm cập nhật Likes cục bộ (cũng cần thiết cho StatusItem)
+    const handleModalLikesUpdate = (postId, newLikes) => {
+        // Cập nhật mảng likes trong cache hiện tại (dùng khi Like thành công)
+        queryClient.setQueryData(['postDetail', postId], (oldPost) => {
+            if (!oldPost) return oldPost;
+            return { ...oldPost, likes: newLikes };
+        });
     };
 
     if (isLoading) {
@@ -64,7 +78,8 @@ const PostDetailPage = () => {
                         post={post} 
                         currentUserId={post.author._id} // Giả định
                         isModalView={true} 
-                        // Các props khác (update likes/comments)
+                        updatePostInFeed={handleModalUpdate} 
+                        updateLikesInFeed={handleModalLikesUpdate}
                     />
                 </div>
 

@@ -35,7 +35,6 @@ const PostcardSearchResult = ({ post }) => {
                     
                     {/* TIÊU ĐỀ & TÁC GIẢ */}
                     <div className="flex items-center gap-3 mb-2">
-                        {/* SỬA LỖI 3: Thêm ảnh đại diện tác giả */}
                         <div className="avatar">
                            <div className="w-8 rounded-full">
                              <img src={post.author.profilePic || 'https://avatar.iran.liara.run/public/girl'} alt={post.author.fullName} />
@@ -59,8 +58,8 @@ const PostcardSearchResult = ({ post }) => {
                         </div>
                     )}
 
-                    {/* LIKE & COMMENT (đẩy xuống dưới cùng) */}
-                    <div className="    flex items-center justify-start text-xs text-gray-500 pt-2 border-t border-base-300 mt-auto">
+                    {/* LIKE & COMMENT */}
+                    <div className="flex items-center justify-start text-xs text-gray-500 pt-2 border-t border-base-300 mt-auto">
                         <span className="flex items-center gap-1 mr-4">
                             <Heart className="size-3 text-red-500" /> {post.likes.length}
                         </span>

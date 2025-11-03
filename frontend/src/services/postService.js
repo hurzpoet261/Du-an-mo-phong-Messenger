@@ -38,14 +38,18 @@ const addComment = async (postId, text) => {
 
   //  5. XÓA BÀI ĐĂNG
   const deletePost = async (postId) => {
-      // Gọi API DELETE /api/posts/:id
       const response = await axiosInstance.delete(`${API_URL}${postId}`); 
-      return response.data; // Trả về message thành công
+      return response.data;
   };
+  const getPostById = async (postId) => {
+    const response = await axiosInstance.get(`${API_URL}${postId}`);
+    return response.data; 
+};
 export const postService = {
-  createPost,
-  getAllPosts,
-  likePost,
-  addComment,
-  deletePost,
+  createPost,
+  getAllPosts,
+  likePost,
+  addComment,
+  deletePost,
+  getPostById
 };

@@ -155,15 +155,38 @@ export const deletePost = async (req, res) => {
       return res.status(404).json({ message: "Không tìm thấy bài đăng" });
     }
 
-    // Rất quan trọng: Kiểm tra xem người xóa có phải là tác giả không
     if (post.author.toString() !== userId.toString()) {
       return res.status(401).json({ message: "Bạn không có quyền xóa bài đăng này" });
     }
 
-    await post.deleteOne(); // Xóa bài đăng
+    await post.deleteOne();
 
     res.status(200).json({ message: "Xóa bài đăng thành công" });
   } catch (error) {
     res.status(500).json({ message: "Lỗi server khi xóa bài đăng", error: error.message });
   }
+};
+
+/**
+ * @desc    Lấy chi tiết một bài đăng (Dùng cho Post Detail Modal)
+ * @route   GET /api/posts/:id
+ * @access  Private
+ */
+export const getPost = async (req, res) => {
+    try {
+        const postId = req.params.id;
+        
+        // 🚨 QUAN TRỌNG: Lấy bài đăng và populate thông tin cần thiết
+        const post = await Post.findById(postId)
+            .populate("author", "fullName profilePic")
+            .populate("comments.author", "fullName profilePic");
+
+        if (!post) {
+            return res.status(404).json({ message: "Không tìm thấy bài đăng" });
+        }
+        res.status(200).json(post);
+    } catch (error) {
+        console.error("Lỗi server khi lấy bài đăng chi tiết:", error);
+        res.status(500).json({ message: "Lỗi server khi lấy bài đăng", error: error.message });
+    }
 };

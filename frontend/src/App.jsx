@@ -131,12 +131,15 @@ const App = () => {
           }
         />
         
-        {/* 🟢 ROUTE MODAL MỚI: DÙNG ĐỂ KÍCH HOẠT POST DETAIL MODAL */}
         <Route
           path="/posts/:postId"
           element={
             isAuthenticated ? (
-              <PostDetailPage />
+              !isOnboarded ? (
+                <PostDetailPages />
+              ) : (       
+                <PostDetailPage />
+              )
             ) : (
               <Navigate to="/login" />
             )
