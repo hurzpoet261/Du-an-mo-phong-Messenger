@@ -8,7 +8,6 @@ function StatusFeedList({ newPost, currentUserId, onPostInserted }) {
     const [isInitialLoadDone, setIsInitialLoadDone] = useState(false);
     const [error, setError] = useState(null); 
 
-    // 🟢 HÀM XỬ LÝ LIKE: Cập nhật mảng likes dựa trên postId
     const updateLikesInFeed = (postId, newLikes) => {
         setPosts(prevPosts => 
             prevPosts.map(post => 
@@ -17,7 +16,6 @@ function StatusFeedList({ newPost, currentUserId, onPostInserted }) {
         );
     };
     
-    // 🟢 HÀM XỬ LÝ COMMENT: Cập nhật toàn bộ bài viết (vì BE trả về Post đã update)
     const updatePostInFeed = (updatedPost) => {
         setPosts(prevPosts => 
             prevPosts.map(post => 
@@ -45,12 +43,10 @@ function StatusFeedList({ newPost, currentUserId, onPostInserted }) {
         }
     }, [isLoading]); 
 
-    // Tải bài viết cho lần truy cập đầu tiên
     useEffect(() => {
         loadPosts();
     }, [loadPosts]); 
 
-    // Xử lý bài viết mới được tạo
     useEffect(() => {
         if (newPost && newPost._id) {
             setPosts(prevPosts => {

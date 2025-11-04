@@ -6,7 +6,9 @@ import {
   likePost,
   addComment,
   deletePost,
-  getPost
+  getPost, 
+  editComment,
+  deleteComment
 } from "../controllers/post.controller.js";
 import { protectRoute } from "../middleware/auth.middleware.js"; 
 
@@ -28,4 +30,7 @@ router.route("/:id/like").put(protectRoute, likePost);
 router.route("/:id/comment").post(protectRoute, addComment);
 router.route("/:id").delete(protectRoute, deletePost);
 router.route("/:id").get(protectRoute, getPost);
+router.route("/:postId/comment/:commentId")
+    .put(protectRoute, editComment)
+    .delete(protectRoute, deleteComment);
 export default router;

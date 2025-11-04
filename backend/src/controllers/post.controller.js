@@ -190,3 +190,82 @@ export const getPost = async (req, res) => {
         res.status(500).json({ message: "Lỗi server khi lấy bài đăng", error: error.message });
     }
 };
+// BE: server/controllers/post.controller.js (Cần thêm vào cuối file)
+
+/**
+ * @desc    Xóa một bình luận (Chủ bài đăng HOẶC Tác giả bình luận có quyền)
+ * @route   DELETE /api/posts/:postId/comment/:commentId
+ * @access  Private
+ */
+export const deleteComment = async (req, res) => {
+    try {
+        const { postId, commentId } = req.params;
+        const userId = req.user._id;
+
+        const post = await Post.findById(postId);
+        if (!post) return res.status(404).json({ message: "Không tìm thấy bài đăng" });
+
+        const commentIndex = post.comments.findIndex(c => c._id.toString() === commentId);
+        if (commentIndex === -1) return res.status(404).json({ message: "Không tìm thấy bình luận" });
+
+        const comment = post.comments[commentIndex];
+        const isPostAuthor = post.author.toString() === userId.toString();
+        const isCommentAuthor = comment.author.toString() === userId.toString();
+
+        // Kiểm tra quyền: Chỉ tác giả bài đăng hoặc tác giả bình luận mới được xóa
+        if (!isPostAuthor && !isCommentAuthor) {
+            return res.status(403).json({ message: "Bạn không có quyền xóa bình luận này." });
+        }
+
+        post.comments.splice(commentIndex, 1); // Xóa bình luận khỏi mảng
+        await post.save();
+
+        // Trả về toàn bộ bài post đã được cập nhật
+        const updatedPost = await Post.findById(postId)
+            .populate("author", "fullName profilePic")
+            .populate("comments.author", "fullName profilePic");
+
+        res.status(200).json(updatedPost);
+    } catch (error) {
+        res.status(500).json({ message: "Lỗi server khi xóa bình luận", error: error.message });
+    }
+};
+
+/**
+ * @desc    Chỉnh sửa một bình luận (Chỉ Tác giả bình luận có quyền)
+ * @route   PUT /api/posts/:postId/comment/:commentId
+ * @access  Private
+ */
+export const editComment = async (req, res) => {
+    try {
+        const { postId, commentId } = req.params;
+        const { text } = req.body;
+        const userId = req.user._id;
+
+        const post = await Post.findById(postId);
+        if (!post) return res.status(404).json({ message: "Không tìm thấy bài đăng" });
+
+        const commentIndex = post.comments.findIndex(c => c._id.toString() === commentId);
+        if (commentIndex === -1) return res.status(404).json({ message: "Không tìm thấy bình luận" });
+
+        const comment = post.comments[commentIndex];
+
+        // Kiểm tra quyền: Chỉ tác giả bình luận mới được chỉnh sửa
+        if (comment.author.toString() !== userId.toString()) {
+            return res.status(403).json({ message: "Bạn không có quyền chỉnh sửa bình luận này." });
+        }
+        
+        // Cập nhật nội dung bình luận
+        post.comments[commentIndex].text = text;
+        await post.save();
+
+        // Trả về toàn bộ bài post đã được cập nhật
+        const updatedPost = await Post.findById(postId)
+            .populate("author", "fullName profilePic")
+            .populate("comments.author", "fullName profilePic");
+
+        res.status(200).json(updatedPost);
+    } catch (error) {
+        res.status(500).json({ message: "Lỗi server khi chỉnh sửa bình luận", error: error.message });
+    }
+};

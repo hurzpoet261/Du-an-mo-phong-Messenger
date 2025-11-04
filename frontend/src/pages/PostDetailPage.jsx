@@ -3,37 +3,39 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
 import { postService } from '../services/postService.js'; 
-import StatusItem from '../components/StatusItem.jsx';
+import StatusItem from '../components/StatusItem.jsx'; 
 
 const PostDetailPage = () => {
     const { postId } = useParams();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
-    
-    // 🟢 Tải chi tiết bài viết
+
+    // Tải chi tiết bài viết
     const { data: post, isLoading, error } = useQuery({
         queryKey: ['postDetail', postId],
-        queryFn: () => postService.getPostById(postId),
-        enabled: !!postId,
+        queryFn: () => postService.getPostById(postId), 
+        enabled: !!postId, 
     });
     
     const handleClose = () => {
-        navigate(-1); // Quay lại trang trước (SearchPage)
+        navigate(-1);
     };
+
+    // Hàm cập nhật bài post (Sau khi Comment)
     const handleModalUpdate = (updatedPost) => {
-        // Cập nhật dữ liệu chi tiết bài post trong cache React Query
         queryClient.setQueryData(['postDetail', postId], updatedPost);
     };
 
-    // Hàm cập nhật Likes cục bộ (cũng cần thiết cho StatusItem)
-    const handleModalLikesUpdate = (postId, newLikes) => {
-        // Cập nhật mảng likes trong cache hiện tại (dùng khi Like thành công)
+    // Hàm cập nhật likes
+    const handleModalLikesUpdate = (id, newLikes) => {
         queryClient.setQueryData(['postDetail', postId], (oldPost) => {
             if (!oldPost) return oldPost;
             return { ...oldPost, likes: newLikes };
         });
+        // Có thể thêm logic cập nhật cache của StatusFeedList nếu cần
     };
 
+    // Xử lý Trạng thái Loading/Error
     if (isLoading) {
         return (
             <div className="fixed inset-0 z-50 bg-black bg-opacity-70 flex items-center justify-center">
@@ -41,27 +43,27 @@ const PostDetailPage = () => {
             </div>
         );
     }
-    
+
     if (error || !post) {
         return (
-            <div className="fixed inset-0 z-50 bg-black bg-opacity-70 flex items-center justify-center" onClick={handleClose}>
-                <div className="alert alert-error max-w-sm" onClick={(e) => e.stopPropagation()}>
-                    <span>Lỗi: Không tìm thấy bài viết chi tiết.</span>
+            <div className="fixed inset-0 z-50 bg-black bg-opacity-70 flex items-center justify-center">
+                <div className="text-error bg-base-200 p-4 rounded-lg shadow-xl flex items-center gap-3">
+                    <XIcon className="size-6" /> Lỗi: Không tìm thấy bài viết hoặc phiên hết hạn.
+                    <button className="btn btn-sm btn-error ml-4" onClick={handleClose}>Đóng</button>
                 </div>
             </div>
         );
     }
 
     return (
-        // KHUNG PHỦ MỜ VÀ MODAL
         <div 
             className="fixed inset-0 z-50 bg-black bg-opacity-70 flex items-center justify-center p-4"
             onClick={handleClose}
         >
             
             <div 
-                className="bg-base-100 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto relative"
-                onClick={(e) => e.stopPropagation()}
+                className="bg-base-100 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto relative shadow-2xl"
+                onClick={(e) => e.stopPropagation()} // Ngăn chặn đóng Modal khi click vào nội dung
             >
                 {/* Nút đóng */}
                 <button 
@@ -71,14 +73,13 @@ const PostDetailPage = () => {
                     <XIcon className="size-5" />
                 </button>
 
-                {/* NỘI DUNG BÀI VIẾT (Sử dụng StatusItem để hiển thị chi tiết) */}
-                <div className="p-4">
-                    {/* 🚨 Tái sử dụng StatusItem để hiển thị chi tiết (đã bao gồm Likes/Comments) */}
+                {/* Nội dung Bài Viết chi tiết */}
+                <div className="p-4 pt-10">
                     <StatusItem 
                         post={post} 
-                        currentUserId={post.author._id} // Giả định
-                        isModalView={true} 
-                        updatePostInFeed={handleModalUpdate} 
+                        currentUserId={post.author._id} // ID người dùng hiện tại
+                        isModalView={true} // BẮT BUỘC: Hiển thị tất cả bình luận và vô hiệu hóa routing
+                        updatePostInFeed={handleModalUpdate}
                         updateLikesInFeed={handleModalLikesUpdate}
                     />
                 </div>
