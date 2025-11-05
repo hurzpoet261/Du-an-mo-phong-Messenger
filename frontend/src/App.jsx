@@ -10,6 +10,7 @@ import ChatPage from "./pages/ChatPage.jsx";
 import OnboardingPage from "./pages/OnboardingPage.jsx";
 import StatusFeedPage from "./pages/StatusFeedPage.jsx";
 import SearchPage from "./pages/SearchPage.jsx";
+import ChatListPage from "./pages/ChatListPage.jsx";
 
 import PostDetailPage from "./pages/PostDetailPage.jsx"; 
 
@@ -145,6 +146,18 @@ const App = () => {
             )
           }
         />
+        <Route
+          path="/chat"
+          element={
+            isAuthenticated && isOnboarded ? (
+              <Layout showSidebar={true}>
+                <ChatListPage />
+              </Layout>
+            ) : (
+              <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
+            )
+          }
+        />
         
       </Routes>
 

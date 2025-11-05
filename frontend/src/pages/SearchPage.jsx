@@ -10,10 +10,11 @@ const SearchPage = () => {
   const [results, setResults] = useState([]); 
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  // State chứa danh sách bạn bè và yêu cầu đã gửi (được fetch khi mount)
   const [myContext, setMyContext] = useState({ friends: [], sentRequests: [] });
   const navigate = useNavigate();
 
-    // 🚨 Logic fetchMyContext
+  // 1. Lấy Context Người dùng Hiện tại (Friends & Sent Requests)
   useEffect(() => {
     const fetchMyContext = async () => {
         try {
@@ -35,7 +36,8 @@ const SearchPage = () => {
     fetchMyContext();
   }, []); 
 
-  // HÀM XỬ LÝ SEARCH (Sử dụng tham số để đồng bộ)
+  // ----------------------------------------------------------------------
+  // 🟢 HÀM XỬ LÝ SEARCH (Sử dụng tham số để đồng bộ)
   const handleSearch = async (e, forcedType = searchType) => { 
     if (e) e.preventDefault(); 
     const currentKeyword = keyword.trim();
@@ -65,8 +67,8 @@ const SearchPage = () => {
       setLoading(false);
     }
   };
-
-  // HÀM XỬ LÝ CHUYỂN ĐỔI LOẠI TÌM KIẾM (FIX LỖI ĐỒNG BỘ)
+  
+  // 🟢 HÀM XỬ LÝ CHUYỂN ĐỔI LOẠI TÌM KIẾM (FIX LỖI ĐỒNG BỘ)
   const handleTypeChange = (newType) => {
     // 1. Xóa kết quả cũ ngay lập tức (Ngăn lỗi render)
     setResults([]); 
@@ -80,9 +82,36 @@ const SearchPage = () => {
   };
   // ----------------------------------------------------------------------
 
-  // 🚨 HÀM ACTIONS (Giả định chúng được định nghĩa ở đâu đó)
-  const handleSendRequest = async (recipientId) => { console.log(`Request sent to ${recipientId}`); };
-  const handleMessageClick = (friendId) => { navigate(`/chat/${friendId}`); };
+  // 🟢 HÀM ACTIONS: Gửi Yêu cầu Kết bạn
+  const handleSendRequest = async (recipientId) => { 
+    try {
+        const res = await fetch(`/api/users/friend-request/${recipientId}`, { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include' 
+        });
+        
+        if (res.ok) {
+            // Cập nhật TRẠNG THÁI: Thêm ID người nhận vào danh sách đã gửi
+            setMyContext(prev => ({
+                ...prev,
+                sentRequests: [...prev.sentRequests, recipientId] 
+            })); 
+        } else {
+            const data = await res.json();
+            alert(`Lỗi: ${data.message}`);
+        }
+    } catch (error) {
+        console.error("Lỗi gửi yêu cầu:", error);
+        alert("Lỗi mạng khi gửi yêu cầu.");
+    }
+  };
+  
+  // HÀM ACTIONS: Nhắn tin 
+  const handleMessageClick = (friendId) => {
+    navigate(`/chat/${friendId}`);
+  };
+
 
   // HÀM RENDER KẾT QUẢ
   const renderResults = () => {
@@ -167,7 +196,6 @@ const SearchPage = () => {
 
       <div className="search-results-container">
         {renderResults()}
-        {console.log("Current Results:", results)}
       </div>
     </div>
   );

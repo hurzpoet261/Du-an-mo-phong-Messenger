@@ -1,6 +1,6 @@
 import { NavLink, Link, useLocation } from "react-router-dom";
 import useAuthUser from "../hooks/useAuthUser";
-import { BellIcon, HomeIcon, SearchIcon, ShipWheelIcon, UsersIcon, FileTextIcon } from "lucide-react";
+import { BellIcon, HomeIcon, SearchIcon, ShipWheelIcon, UsersIcon, MessageSquareText } from "lucide-react";
 
 const Sidebar = () => {
   const { authUser } = useAuthUser();
@@ -29,6 +29,15 @@ const Sidebar = () => {
           <span>Home</span>
         </Link>
 
+        <Link
+          to="/chat"
+          className={`btn btn-ghost justify-start w-full gap-3 px-3 normal-case ${
+            currentPath === "/chat" ? "btn-active" : ""
+          }`}
+        >
+          <MessageSquareText className="size-5 text-base-content opacity-70" />
+          <span>Chat</span>
+        </Link>
         <Link
           to="/search"
           className={`btn btn-ghost justify-start w-full gap-3 px-3 normal-case ${
