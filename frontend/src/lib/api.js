@@ -99,7 +99,6 @@ export const addComment = async (postId, text) => {
     return response.data;
 };
 
-// HÀM MỚI ĐƯỢC THÊM VÀO
 export const getPostById = async (postId) => {
     const response = await axiosInstance.get(`/posts/${postId}`);
     return response.data;
