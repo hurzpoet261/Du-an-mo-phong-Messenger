@@ -1,3 +1,42 @@
+// import express from "express";
+// import multer from "multer"; 
+// import {
+//   createPost,
+//   getAllPosts,
+//   likePost,
+//   addComment,
+//   deletePost,
+//   getPost, 
+//   editComment,
+//   deleteComment
+// } from "../controllers/post.controller.js";
+// import { protectRoute } from "../middleware/auth.middleware.js"; 
+
+// const router = express.Router();
+
+// const storage = multer.memoryStorage();
+// const upload = multer({ storage: storage });
+
+// router.route("/")
+//   .post(
+//     protectRoute, 
+//     upload.single('image'), 
+//     createPost
+//   )
+//   .get(protectRoute, getAllPosts);
+
+
+// router.route("/:id/like").put(protectRoute, likePost);
+// router.route("/:id/comment").post(protectRoute, addComment);
+// router.route("/:id").delete(protectRoute, deletePost);
+// router.route("/:id").get(protectRoute, getPost);
+// router.route("/:postId/comment/:commentId")
+//     .put(protectRoute, editComment)
+//     .delete(protectRoute, deleteComment);
+// export default router;
+
+// backend/routes/post.route.js
+
 import express from "express";
 import multer from "multer"; 
 import {
@@ -15,22 +54,38 @@ import { protectRoute } from "../middleware/auth.middleware.js";
 const router = express.Router();
 
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+// Cải tiến: Giới hạn kích thước file, ví dụ 10MB (cho video)
+const upload = multer({ 
+  storage: storage,
+  limits: { fileSize: 10 * 1024 * 1024 } // 10MB
+});
 
+// --- NÂNG CẤP TÍNH NĂNG ---
+// Sửa route 'createPost'
 router.route("/")
-  .post(
-    protectRoute, 
-    upload.single('image'), 
-    createPost
-  )
-  .get(protectRoute, getAllPosts);
+  .post(
+    protectRoute, 
+    // Đổi từ 'upload.single' thành 'upload.fields'
+    upload.fields([
+      { name: 'images', maxCount: 5 }, // Chấp nhận tối đa 5 file có tên 'images'
+      { name: 'video', maxCount: 1 }  // Chấp nhận tối đa 1 file có tên 'video'
+    ]), 
+    createPost
+  )
+  .get(protectRoute, getAllPosts);
+// --- KẾT THÚC NÂNG CẤP ---
 
+// Cải tiến: Gộp các route có cùng ':id' lại cho gọn
+router.route("/:id")
+  .get(protectRoute, getPost)
+  .delete(protectRoute, deletePost);
 
 router.route("/:id/like").put(protectRoute, likePost);
 router.route("/:id/comment").post(protectRoute, addComment);
-router.route("/:id").delete(protectRoute, deletePost);
-router.route("/:id").get(protectRoute, getPost);
+
+// Route cho comment (giữ nguyên)
 router.route("/:postId/comment/:commentId")
-    .put(protectRoute, editComment)
-    .delete(protectRoute, deleteComment);
+    .put(protectRoute, editComment)
+    .delete(protectRoute, deleteComment);
+
 export default router;
