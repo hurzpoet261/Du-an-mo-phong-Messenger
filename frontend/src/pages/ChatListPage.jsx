@@ -15,92 +15,72 @@ const ChatListPage = () => {
     const [chatClient, setChatClient] = useState(null);
     const navigate = useNavigate();
 
-    // 1. Lấy Stream Token
-    const { data: tokenData } = useQuery({
-        queryKey: ["streamToken"],
-        queryFn: getStreamToken,
-        enabled: !!authUser,
-    });
+    const { data: tokenData } = useQuery({ queryKey: ["streamToken"], queryFn: getStreamToken, enabled: !!authUser });
 
-    // 2. Khởi tạo Stream Client
     useEffect(() => {
         const initChat = async () => {
             if (!tokenData?.token || !authUser) return;
             const client = StreamChat.getInstance(STREAM_API_KEY);
-
             if (!client.user) { 
-                try {
-                    await client.connectUser(
-                        {
-                            id: authUser._id,
-                            name: authUser.fullName,
-                            image: authUser.profilePic,
-                        },
-                        tokenData.token
-                    );
-                    setChatClient(client);
-                } catch (error) {
-                    console.error("Lỗi kết nối Stream Client:", error);
-                }
-            } else {
-                setChatClient(client); 
+                await client.connectUser({ id: authUser._id, name: authUser.fullName, image: authUser.profilePic }, tokenData.token);
             }
+            setChatClient(client);
         };
-
-        if (tokenData?.token && authUser) {
-            initChat();
-        }
+        if (tokenData?.token && authUser) initChat();
     }, [tokenData, authUser]);
 
-    // 3. Bộ lọc: Chỉ lấy 1:1 chat (messaging)
-    const filters = {
-        type: 'messaging',
-        members: { $in: [authUser?._id] },
-    };
-    
-    // 4. Sắp xếp: Tin nhắn mới nhất lên đầu
+    const filters = { type: 'messaging', members: { $in: [authUser?._id] } };
     const sort = { last_message_at: -1 };
 
-    if (!chatClient || !authUser) {
-        return <ChatLoader />;
-    }
+    
+    const CustomChannelPreview = (props) => {
+        const { channel, setActiveChannel } = props;
+        const { messages } = channel.state;
+        const lastMessage = messages[messages.length - 1];
+        
+        const otherMember = Object.values(channel.state.members).find(m => m.user_id !== authUser._id);
+        const otherUser = otherMember?.user;
+
+        return (
+            <button 
+                onClick={() => {
+                    navigate(`/chat/${otherUser?.id}`);
+                }}
+                className="flex items-center gap-3 p-3 w-full hover:bg-base-200 transition-colors text-left border-b border-base-200"
+            >
+                {/* Avatar */}
+                <div className="avatar">
+                    <div className="w-12 rounded-full">
+                        <img src={otherUser?.image || '/default-avatar.png'} alt={otherUser?.name} />
+                    </div>
+                </div>
+                {/* Tên và tin nhắn cuối */}
+                <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold truncate">{otherUser?.name || 'Chat'}</h4>
+                    <p className="text-sm text-gray-500 truncate">
+                        {lastMessage?.text || 'Bắt đầu cuộc trò chuyện'}
+                    </p>
+                </div>
+            </button>
+        );
+    };
+
+    if (!chatClient || !authUser) return <ChatLoader />;
 
     return (
-        <div className="p-4 sm:p-6 lg:p-8 h-full">
-            
-            <div className="flex items-center gap-3 mb-6 shrink-0">
+        <div className="flex flex-col h-full"> {/* Bỏ padding ở container chính nếu cần full-width */}
+            <div className="flex items-center gap-3 p-4 sm:p-6 lg:p-8 mb-0 shrink-0 border-b">
                 <MessageSquareText className="size-8 text-primary" />
                 <h1 className="text-3xl font-bold tracking-tight">Tin nhắn</h1>
             </div>
 
-            <div className="flex-grow min-h-0">
+            <div className="flex-grow min-h-0 overflow-y-auto"> {/* Thêm overflow-y-auto vào đây */}
                 <Chat client={chatClient}>
                     <ChannelList
                         filters={filters}
                         sort={sort}
-                        
-                        // 🟢 ĐÂY LÀ NƠI XỬ LÝ VIỆC CLICK VÀ ĐIỀU HƯỚNG
-                        onSelect={(channel) => {
-                            if (!authUser?._id) {
-                                console.error("AuthUser ID không tồn tại.");
-                                return;
-                            }
-
-                            // 1. Lấy danh sách ID của tất cả thành viên
-                            const memberIDs = Object.keys(channel.state.members);
-                            
-                            // 2. Lọc ra ID của người còn lại (không phải bạn)
-                            const otherUserId = memberIDs.find(
-                                (id) => id !== authUser._id
-                            );
-
-                            if (otherUserId) {
-                                // 3. Điều hướng đến trang chat chi tiết
-                                navigate(`/chat/${otherUserId}`);
-                            } else {
-                                console.error("Không tìm thấy ID người nhận trong kênh này.");
-                            }
-                        }}
+                        // 🟢 SỬ DỤNG CUSTOM PREVIEW
+                        Preview={CustomChannelPreview} 
                     />
                 </Chat>
             </div>

@@ -9,12 +9,6 @@ const Navbar = () => {
   const location = useLocation();
   const isChatPage = location.pathname?.startsWith("/chat");
 
-  // const queryClient = useQueryClient();
-  // const { mutate: logoutMutation } = useMutation({
-  //   mutationFn: logout,
-  //   onSuccess: () => queryClient.invalidateQueries({ queryKey: ["authUser"] }),
-  // });
-
   const { logoutMutation } = useLogout();
 
   return (
@@ -24,12 +18,6 @@ const Navbar = () => {
           {/* LOGO - ONLY IN THE CHAT PAGE */}
           {isChatPage && (
             <div className="pl-5">
-              <Link to="/" className="flex items-center gap-2.5">
-                <ShipWheelIcon className="size-9 text-primary" />
-                <span className="text-3xl font-bold font-mono bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary  tracking-wider">
-                  MESSENGER
-                </span>
-              </Link>
             </div>
           )}
 

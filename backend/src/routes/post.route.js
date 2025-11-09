@@ -74,8 +74,6 @@ router.route("/")
   )
   .get(protectRoute, getAllPosts);
 // --- KẾT THÚC NÂNG CẤP ---
-
-// Cải tiến: Gộp các route có cùng ':id' lại cho gọn
 router.route("/:id")
   .get(protectRoute, getPost)
   .delete(protectRoute, deletePost);
@@ -87,5 +85,4 @@ router.route("/:id/comment").post(protectRoute, addComment);
 router.route("/:postId/comment/:commentId")
     .put(protectRoute, editComment)
     .delete(protectRoute, deleteComment);
-
 export default router;

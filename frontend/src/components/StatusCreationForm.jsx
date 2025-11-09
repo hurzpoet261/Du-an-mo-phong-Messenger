@@ -57,7 +57,7 @@ function StatusCreationForm({ currentUser, onPostCreated }) {
                 if (fileObj.type.startsWith('image/')) {
                     formData.append('images', fileObj.file);
                 } else if (fileObj.type.startsWith('video/')) {
-                    formData.append('videos', fileObj.file);
+                    formData.append('video', fileObj.file);
                 }
             });
             

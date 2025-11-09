@@ -1,197 +1,191 @@
 import React, { useState } from 'react';
-import { Heart, MessageSquare, MoreHorizontal, Trash2 } from 'lucide-react'; 
-import { postService } from '../services/postService.js'; // Cập nhật đường dẫn tới service của bạn
-import { formatDistanceToNowStrict, parseISO } from 'date-fns'; 
+import { Heart, MessageSquare, MoreHorizontal, Trash2, Send } from 'lucide-react';
+import { postService } from '../services/postService.js';
+import { formatDistanceToNowStrict, parseISO } from 'date-fns';
 import { vi } from "date-fns/locale/vi";
 import toast from 'react-hot-toast';
-import { Link, useNavigate } from 'react-router-dom'; 
+import { Link, useNavigate } from 'react-router-dom';
 
-function StatusItem({ post, currentUserId, updateLikesInFeed, updatePostInFeed, onDeleteSuccess, isModalView }) { 
-    
+function StatusItem({ post, currentUserId, updateLikesInFeed, updatePostInFeed, onDeleteSuccess, isModalView }) {
     const [commentText, setCommentText] = useState('');
-    const isLiked = post.likes.includes(currentUserId);
-    const isAuthor = post.author?._id === currentUserId; 
+    const [editingCommentId, setEditingCommentId] = useState(null);
     const navigate = useNavigate();
 
-    // 🟢 LỌC BÌNH LUẬN DỰA TRÊN isModalView
-    const commentsToShow = isModalView 
-        ? post.comments // Nếu là Modal/Detail, hiển thị TẤT CẢ
-        : post.comments.slice(-2); // Nếu là Feed, chỉ hiển thị 2 bình luận cuối cùng
+    const isLiked = post.likes.includes(currentUserId);
+    const isPostAuthor = post.author?._id === currentUserId;
+    const commentsToRender = isModalView ? post.comments : post.comments.slice(-2);
 
     const timeAgo = (dateString) => {
         if (!dateString) return 'Vừa xong';
-        try { 
-            return formatDistanceToNowStrict(parseISO(dateString), { addSuffix: true, locale: vi }); 
-        } catch (e) { 
-            return 'Không xác định'; 
-        }
-    }; 
-    
+        try { return formatDistanceToNowStrict(parseISO(dateString), { addSuffix: true, locale: vi }); } catch (e) { return ''; }
+    };
+
     const handleLike = async () => {
         try {
             const { postId, likes } = await postService.likePost(post._id);
             updateLikesInFeed(postId, likes);
-        } catch (error) {
-            console.error("Lỗi Thích/Bỏ thích:", error.response?.data || error.message);
-        }
+        } catch (error) { console.error("Lỗi Like:", error); }
     };
-    
+
     const handleCommentSubmit = async (e) => {
         e.preventDefault();
         if (!commentText.trim()) return;
-        
         try {
             const updatedPost = await postService.addComment(post._id, commentText.trim());
             updatePostInFeed(updatedPost);
-            setCommentText(''); 
-            
-        } catch (error) {
-            console.error("Lỗi bình luận:", error.response?.data || error.message);
-            toast.error("Bình luận thất bại. Vui lòng thử lại.");
-        }
+            setCommentText('');
+            toast.success('Đã bình luận');
+        } catch (error) { toast.error("Bình luận thất bại"); }
     };
 
-    const handleDelete = () => {
-        const executeDelete = async () => {
-            try {
-                await postService.deletePost(post._id);
-                if (onDeleteSuccess) {
-                    onDeleteSuccess(post._id);
-                }
-                toast.success('Xóa bài đăng thành công!', { duration: 2000 });
-            } catch (error) {
-                toast.error(error.response?.data?.message || "Lỗi: Bạn không thể xóa bài đăng này.");
-            }
-        };
-
+    const handleDeletePost = () => {
         toast((t) => (
-            <div className="flex flex-col items-start p-2">
-                <p className="font-semibold mb-2">Bạn có chắc chắn muốn xóa bài đăng này?</p>
-                <div className="flex justify-end w-full gap-2 mt-2">
-                    <button onClick={() => toast.dismiss(t.id)} className="btn btn-sm btn-ghost">
-                        Hủy
-                    </button>
-                    <button 
-                        onClick={() => { executeDelete(); toast.dismiss(t.id); }} 
-                        className="btn btn-sm btn-error"
-                    >
-                        <Trash2 className="size-4" /> Xóa
-                    </button>
+            <div className="flex flex-col gap-2">
+                <p className="font-medium">Xóa bài viết này?</p>
+                <div className="flex gap-2 justify-end">
+                    <button onClick={() => toast.dismiss(t.id)} className="btn btn-xs">Hủy</button>
+                    <button onClick={async () => {
+                        toast.dismiss(t.id);
+                        try {
+                            await postService.deletePost(post._id);
+                            if (onDeleteSuccess) onDeleteSuccess(post._id);
+                            toast.success('Đã xóa bài viết');
+                        } catch (e) { toast.error(e.response?.data?.message || "Lỗi xóa bài"); }
+                    }} className="btn btn-xs btn-error text-white">Xóa</button>
                 </div>
             </div>
-        ), { duration: 999999, position: 'top-center' });
+        ));
     };
-    
-    // Nút Comment kích hoạt Modal/Detail Page
-    const handleCommentClick = () => {
-        if (!isModalView) { 
-            navigate(`/posts/${post._id}`);
+
+    const handleDeleteComment = (commentId) => {
+        toast((t) => (
+            <div className="flex flex-col gap-2">
+                <p className="font-medium">Xóa bình luận này?</p>
+                <div className="flex gap-2 justify-end">
+                    <button onClick={() => toast.dismiss(t.id)} className="btn btn-xs">Hủy</button>
+                    <button onClick={async () => {
+                        toast.dismiss(t.id);
+                        try {
+                            const updatedPost = await postService.deleteComment(post._id, commentId);
+                            updatePostInFeed(updatedPost);
+                            toast.success('Đã xóa bình luận');
+                        } catch (e) { toast.error("Không thể xóa bình luận"); }
+                    }} className="btn btn-xs btn-error text-white">Xóa</button>
+                </div>
+            </div>
+        ));
+    };
+
+    const handleEditComment = async (commentId, currentText) => {
+        const newText = prompt("Chỉnh sửa bình luận:", currentText);
+        if (newText && newText.trim() !== currentText) {
+            try {
+                const updatedPost = await postService.editComment(post._id, commentId, newText.trim());
+                updatePostInFeed(updatedPost);
+                toast.success('Đã sửa bình luận');
+            } catch (error) { toast.error("Không thể sửa bình luận"); }
         }
     };
 
     return (
-        <div className="card bg-base-100 shadow-xl mb-4">
+        <div className="card bg-base-100 shadow-xl mb-4 border border-base-200">
             <div className="card-body p-0">
-                
                 {/* Header */}
                 <div className="flex items-center p-4 pb-2">
-                    <div className="avatar size-10 mr-3">
-                        <img src={post.author?.profilePic || 'default_avatar.png'} alt={post.author?.fullName} className="rounded-full object-cover" />
+                    <img src={post.author?.profilePic || '/default_avatar.png'} alt="avt" className="w-10 h-10 rounded-full object-cover mr-3" />
+                    <div className="flex-grow">
+                        <p className="font-semibold text-sm">{post.author?.fullName}</p>
+                        <p className="text-xs text-gray-500">{timeAgo(post.createdAt)}</p>
                     </div>
-                    <div className="flex flex-col flex-grow">
-                        <span className="font-semibold text-sm">{post.author?.fullName}</span>
-                        <span className="text-xs text-gray-500">{timeAgo(post.createdAt)}</span>
-                    </div>
-                    
-                    {isAuthor ? (
-                        <div className="dropdown dropdown-end ml-auto">
-                            <div tabIndex={0} role="button" className="btn btn-ghost btn-sm btn-circle p-0">
-                                <MoreHorizontal size={20} className="text-gray-500 cursor-pointer" />
-                            </div>
-                            <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-36">
-                                <li>
-                                    <button onClick={handleDelete} className="text-error">
-                                        <Trash2 size={16} /> Xóa Bài Đăng
-                                    </button>
-                                </li>
+                    {isPostAuthor && (
+                        <div className="dropdown dropdown-end">
+                            <div tabIndex={0} role="button" className="btn btn-ghost btn-circle btn-sm"><MoreHorizontal size={20} /></div>
+                            <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-32">
+                                <li><button onClick={handleDeletePost} className="text-error"><Trash2 size={16} /> Xóa</button></li>
                             </ul>
                         </div>
-                    ) : (
-                        <MoreHorizontal size={20} className="text-gray-500 cursor-pointer ml-auto" />
                     )}
                 </div>
 
-                {/* Nội dung Text & Media */}
-                <p className="px-4 pb-2 text-base whitespace-pre-wrap">{post.content}</p>
-                {post.image && (
-                    <img src={post.image} alt="Post media" className="w-full object-contain max-h-[600px] block" />
-                )}
-                
-                {/* Lượt thích và Số lượng Bình luận */}
-                {(post.likes.length > 0 || post.comments.length > 0) && (
-                    <div className="flex justify-between px-4 pt-2 text-sm text-gray-600">
-                        {post.likes.length > 0 && <span>{post.likes.length} lượt thích</span>}
-                        {post.comments.length > 0 && <span>{post.comments.length} bình luận</span>}
-                    </div>
-                )}
-                
-                <div className="divider my-1 px-4"></div> 
-                
-                {/* Actions (Like, Comment) */}
-                <div className="flex justify-around text-gray-600 px-4 pb-3">
-                    <button 
-                        className={`btn btn-sm btn-ghost flex-grow ${isLiked ? 'text-primary' : ''}`}
-                        onClick={handleLike} 
-                    >
-                        <Heart size={18} fill={isLiked ? 'currentColor' : 'none'} /> 
-                        <span className="ml-1 font-semibold">Thích</span>
-                    </button>
-                    
-                    <button 
-                        className="btn btn-sm btn-ghost flex-grow"
-                        onClick={handleCommentClick} 
-                    >
-                        <MessageSquare size={18} /> 
-                        <span className="ml-1 font-semibold">Bình luận</span>
-                    </button>
-                </div>
-
-                {/* Khu vực Comment */}
-                <div className="px-4 pb-4">
-                    
-                    {/* Danh sách Comments */}
-                    {commentsToShow.map(comment => (
-                         <div key={comment._id} className="flex text-sm mt-2 items-start">
-                             <img src={comment.author?.profilePic || 'default_avatar.png'} alt="Commenter" className="w-6 h-6 rounded-full mr-2 object-cover mt-1" />
-                             <div className="bg-base-200 rounded-xl px-3 py-1">
-                                 <span className="font-semibold">{comment.author?.fullName}: </span>
-                                 <span>{comment.text}</span>
-                             </div>
-                         </div>
-                    ))}
-                    
-                    {/* Nút Xem tất cả bình luận (Chỉ hiển thị ở Feed View) */}
-                    {!isModalView && post.comments.length > 2 && (
-                        <div className="mt-2 text-sm">
-                            <Link to={`/posts/${post._id}`} className="text-primary hover:underline font-medium">
-                                Xem tất cả {post.comments.length} bình luận
-                            </Link>
+                {/* Content & Media */}
+                <p className="px-4 pb-2 text-sm whitespace-pre-wrap">{post.content}</p>
+                <div className="media-container">
+                    {/* A. Hiển thị VIDEO (nếu có) */}
+                    {post.video && (
+                        <div className="w-full bg-black flex justify-center mt-1">
+                            <video src={post.video} controls className="max-h-[500px] w-auto" />
                         </div>
                     )}
                     
-                    {/* Form Comment */}
-                    <form onSubmit={handleCommentSubmit} className="flex mt-3 gap-2">
-                        <img src={currentUserId?.profilePic || 'default_avatar.png'} alt="My Avatar" className="w-8 h-8 rounded-full object-cover" />
-                        <input
-                            type="text"
-                            placeholder="Viết bình luận..."
-                            value={commentText}
-                            onChange={(e) => setCommentText(e.target.value)}
-                            className="input input-sm input-bordered flex-grow rounded-full"
-                        />
-                        <button type="submit" className="btn btn-sm btn-primary btn-circle" disabled={!commentText.trim()}>
-                            <MessageSquare size={16} />
-                        </button>
+                    {/* B. Hiển thị MẢNG ẢNH (post.images) */}
+                    {post.images?.length > 0 && (
+                        <div className={`grid gap-0.5 mt-1 ${post.images.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                            {post.images.map((img, idx) => (
+                                <div key={idx} className="bg-base-200 flex items-center justify-center overflow-hidden max-h-[500px]">
+                                    {/* 🟢 SỬA LỖI: Dùng object-contain để hiển thị toàn bộ ảnh, kể cả ảnh ngang */}
+                                    <img src={img} alt={`media-${idx}`} className="w-full h-full object-contain" />
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* Actions */}
+                <div className="flex border-y border-base-200 py-1 mt-2">
+                    <button className={`btn btn-ghost flex-1 ${isLiked ? 'text-error' : 'text-gray-500'}`} onClick={handleLike}>
+                        <Heart size={20} fill={isLiked ? 'currentColor' : 'none'} /> <span className="hidden sm:inline">Thích</span>
+                    </button>
+                    <button className="btn btn-ghost flex-1 text-gray-500" onClick={() => !isModalView && navigate(`/posts/${post._id}`)}>
+                        <MessageSquare size={20} /> <span className="hidden sm:inline">Bình luận</span>
+                    </button>
+                </div>
+
+                {/* Comments Section */}
+                <div className="px-4 py-3 bg-base-100/50">
+                    {commentsToRender.map(comment => {
+                        const isCommentOwner = comment.author?._id === currentUserId;
+                        const canDelete = isCommentOwner || isPostAuthor;
+                        const canEdit = isCommentOwner;
+                        const isEditing = editingCommentId === comment._id;
+
+                        return (
+                            <div key={comment._id} className="flex gap-2 mb-3 group">
+                                <img src={comment.author?.profilePic || '/default_avatar.png'} className="w-8 h-8 rounded-full object-cover mt-1" />
+                                <div className="flex-1">
+                                    {isEditing ? (
+                                        <div className="flex gap-2 items-center">
+                                            <input className="input input-sm input-bordered flex-1" value={editBuffer} onChange={(e) => setEditBuffer(e.target.value)} autoFocus />
+                                            <button onClick={() => saveEdit(comment._id)} className="btn btn-xs btn-circle btn-success text-white"><Check size={14} /></button>
+                                            <button onClick={() => setEditingCommentId(null)} className="btn btn-xs btn-circle btn-ghost"><X size={14} /></button>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div className="bg-base-200 p-2.5 rounded-2xl inline-block max-w-full">
+                                                <span className="font-semibold text-sm block">{comment.author?.fullName}</span>
+                                                <span className="text-[15px] break-words">{comment.text}</span>
+                                            </div>
+                                            {isModalView && (canEdit || canDelete) && (
+                                                <div className="flex gap-2 text-xs text-gray-500 ml-2 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    {canEdit && <button onClick={() => startEdit(comment._id, comment.text)} className="hover:text-primary">Sửa</button>}
+                                                    {canDelete && <button onClick={() => handleDeleteComment(comment._id)} className="hover:text-error">Xóa</button>}
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        );
+                    })}
+                    
+                    {!isModalView && post.comments.length > 2 && (
+                        <Link to={`/posts/${post._id}`} className="text-sm text-gray-500 hover:underline block mt-2">
+                            Xem tất cả {post.comments.length} bình luận
+                        </Link>
+                    )}
+
+                    <form onSubmit={handleCommentSubmit} className="flex gap-2 mt-4 relative">
+                        <input type="text" placeholder="Viết bình luận..." className="input input-bordered w-full pr-10 rounded-full" value={commentText} onChange={(e) => setCommentText(e.target.value)} />
+                        <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 btn btn-sm btn-circle btn-ghost text-primary" disabled={!commentText.trim()}><Send size={18} /></button>
                     </form>
                 </div>
             </div>

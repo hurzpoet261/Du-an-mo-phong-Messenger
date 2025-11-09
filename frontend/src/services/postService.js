@@ -47,16 +47,16 @@ const addComment = async (postId, text) => {
 };
   // 🟢 7. Xóa Bình luận
 const deleteComment = async (postId, commentId) => {
-    const response = await axiosInstance.delete(`/api/posts/${postId}/comment/${commentId}`);
+    const response = await axiosInstance.delete(`${API_URL}${postId}/comment/${commentId}`);
     return response.data;
 };
 
 // 🟢 8. Chỉnh sửa Bình luận
 const editComment = async (postId, commentId, newText) => {
-    const response = await axiosInstance.put(`/api/posts/${postId}/comment/${commentId}`, { text: newText }, {
+    const response = await axiosInstance.put(`${API_URL}${postId}/comment/${commentId}`, { text: newText }, {
         headers: { 'Content-Type': 'application/json' },
     });
-    return response.data; // Trả về Post đã được cập nhật
+    return response.data;
 };
 export const postService = {
   createPost,

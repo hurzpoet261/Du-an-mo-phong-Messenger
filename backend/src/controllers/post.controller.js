@@ -332,8 +332,8 @@ export const createPost = async (req, res) => {
 
     const post = new Post({
       content: content || "",
-      images: imagesUrls, // 5. Lưu mảng URL ảnh
-      video: videoUrl, // 6. Lưu URL video
+      images: imagesUrls,
+      video: videoUrl,
       author,
     });
 
@@ -447,50 +447,65 @@ export const getPost = async (req, res) => {
 };
 
 export const deleteComment = async (req, res) => {
-    try {
-        const { postId, commentId } = req.params;
-        const userId = req.user._id;
-        const post = await Post.findById(postId);
-        if (!post) return res.status(404).json({ message: "Không tìm thấy bài đăng" });
-        const commentIndex = post.comments.findIndex(c => c._id.toString() === commentId);
-        if (commentIndex === -1) return res.status(404).json({ message: "Không tìm thấy bình luận" });
-        const comment = post.comments[commentIndex];
-        const isPostAuthor = post.author.toString() === userId.toString();
-        const isCommentAuthor = comment.author.toString() === userId.toString();
-        if (!isPostAuthor && !isCommentAuthor) {
-            return res.status(403).json({ message: "Bạn không có quyền xóa bình luận này." });
-        }
-        post.comments.splice(commentIndex, 1); 
-        await post.save();
-        const updatedPost = await Post.findById(postId)
-            .populate("author", "fullName profilePic")
-            .populate("comments.author", "fullName profilePic");
-        res.status(200).json(updatedPost);
-    } catch (error) {
-        res.status(500).json({ message: "Lỗi server khi xóa bình luận", error: error.message });
-    }
+  try {
+    const { postId, commentId } = req.params;
+    const userId = req.user._id;
+
+    const post = await Post.findById(postId);
+    if (!post) return res.status(404).json({ message: "Post not found" });
+
+    const comment = post.comments.id(commentId);
+    if (!comment) return res.status(404).json({ message: "Comment not found" });
+
+    // Quyền: Tác giả bài viết HOẶC tác giả bình luận
+    if (post.author.toString() !== userId.toString() && comment.author.toString() !== userId.toString()) {
+        return res.status(403).json({ message: "Unauthorized to delete this comment" });
+    }
+
+    // Sử dụng pull để xóa subdocument an toàn
+    post.comments.pull(commentId);
+    await post.save();
+
+    // Populate lại để trả về FE
+    const updatedPost = await Post.findById(postId)
+        .populate("author", "fullName profilePic")
+        .populate("comments.author", "fullName profilePic");
+
+    res.status(200).json(updatedPost);
+  } catch (error) {
+    console.error("Error in deleteComment:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 };
 
+// 🟢 SỬA BÌNH LUẬN
 export const editComment = async (req, res) => {
-    try {
-        const { postId, commentId } = req.params;
-        const { text } = req.body;
-        const userId = req.user._id;
-        const post = await Post.findById(postId);
-        if (!post) return res.status(404).json({ message: "Không tìm thấy bài đăng" });
-        const commentIndex = post.comments.findIndex(c => c._id.toString() === commentId);
-        if (commentIndex === -1) return res.status(404).json({ message: "Không tìm thấy bình luận" });
-        const comment = post.comments[commentIndex];
-        if (comment.author.toString() !== userId.toString()) {
-            return res.status(403).json({ message: "Bạn không có quyền chỉnh sửa bình luận này." });
-        }
-        post.comments[commentIndex].text = text;
-        await post.save();
-        const updatedPost = await Post.findById(postId)
-            .populate("author", "fullName profilePic")
-            .populate("comments.author", "fullName profilePic");
-        res.status(200).json(updatedPost);
-    } catch (error) {
-        res.status(500).json({ message: "Lỗi server khi chỉnh sửa bình luận", error: error.message });
-    }
-};
+  try {
+    const { postId, commentId } = req.params;
+    const { text } = req.body;
+    const userId = req.user._id;
+
+    const post = await Post.findById(postId);
+    if (!post) return res.status(404).json({ message: "Post not found" });
+
+    const comment = post.comments.id(commentId);
+    if (!comment) return res.status(404).json({ message: "Comment not found" });
+
+    // Quyền: CHỈ tác giả bình luận
+    if (comment.author.toString() !== userId.toString()) {
+        return res.status(403).json({ message: "Unauthorized to edit this comment" });
+    }
+
+    comment.text = text; // Cập nhật nội dung
+    await post.save();
+
+    const updatedPost = await Post.findById(postId)
+        .populate("author", "fullName profilePic")
+        .populate("comments.author", "fullName profilePic");
+
+    res.status(200).json(updatedPost);
+  } catch (error) {
+    console.error("Error in editComment:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
