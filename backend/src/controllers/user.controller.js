@@ -336,20 +336,16 @@ export async function getMyContext(req, res) {
 export const declineFriendRequest = async (req, res) => {
     try {
         // ID của người gửi lời mời, lấy từ URL params
-        const { senderId } = req.params; 
+        const { id: requestId } = req.params; 
         
         // ID của bạn (người nhận, đang đăng nhập), lấy từ middleware protectRoute
         const receiverId = req.user._id; 
 
         // Tìm và xóa lời mời kết bạn trong model FriendRequest
-        const result = await FriendRequest.deleteOne({
-            sender: senderId,
-            receiver: receiverId
-        });
+        const result = await FriendRequest.deleteOne({ _id: requestId });
 
         // Kiểm tra xem có thực sự xóa được lời mời nào không
         if (result.deletedCount === 0) {
-            // Có thể lời mời không tồn tại hoặc đã được xử lý
             return res.status(404).json({ message: "Không tìm thấy lời mời kết bạn" });
         }
 

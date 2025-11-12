@@ -11,6 +11,7 @@ import OnboardingPage from "./pages/OnboardingPage.jsx";
 import StatusFeedPage from "./pages/StatusFeedPage.jsx";
 import SearchPage from "./pages/SearchPage.jsx";
 import ChatListPage from "./pages/ChatListPage.jsx";
+import GroupChatPage from "./pages/GroupChatPage.jsx";
 
 import PostDetailPage from "./pages/PostDetailPage.jsx"; 
 
@@ -116,6 +117,18 @@ const App = () => {
             )
           }
         />
+<Route
+          path="/group/:groupId" 
+          element={
+            isAuthenticated && isOnboarded ? (
+              <Layout showSidebar={false}>
+                <GroupChatPage />
+              </Layout>
+            ) : (
+              <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
+            )
+          }
+        />
 
         <Route
           path="/onboarding"
@@ -137,7 +150,7 @@ const App = () => {
           element={
             isAuthenticated ? (
               !isOnboarded ? (
-                <PostDetailPages />
+                <PostDetailPage />
               ) : (       
                 <PostDetailPage />
               )

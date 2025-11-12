@@ -1,4 +1,4 @@
-import { axiosInstance } from '../lib/axios'; // 1. Dùng axiosInstance chung
+import { axiosInstance } from '../lib/axios'; 
 
 const API_URL = '/posts/'; 
 
@@ -45,13 +45,13 @@ const addComment = async (postId, text) => {
     const response = await axiosInstance.get(`${API_URL}${postId}`);
     return response.data; 
 };
-  // 🟢 7. Xóa Bình luận
+  // 6. Xóa Bình luận
 const deleteComment = async (postId, commentId) => {
     const response = await axiosInstance.delete(`${API_URL}${postId}/comment/${commentId}`);
     return response.data;
 };
 
-// 🟢 8. Chỉnh sửa Bình luận
+// 7. Chỉnh sửa Bình luận
 const editComment = async (postId, commentId, newText) => {
     const response = await axiosInstance.put(`${API_URL}${postId}/comment/${commentId}`, { text: newText }, {
         headers: { 'Content-Type': 'application/json' },

@@ -48,20 +48,13 @@ router.get("/friends", getMyFriends);
 
 router.post("/friend-request/:id", sendFriendRequest);
 router.put("/friend-request/:id/accept", acceptFriendRequest);
+router.delete("/friend-request/:id/decline", declineFriendRequest);
 
 router.get("/friend-requests", getFriendRequests);
 router.get("/outgoing-friend-requests", getOutgoingFriendReqs);
 
-// ==========================================================
-// ROUTE MỚI ĐƯỢC THÊM VÀO ĐỂ HỖ TRỢ TRANG TÌM KIẾM
-// ==========================================================
-// GET /api/users/me/context
 router.get("/me/context", getMyContext);
 
-router.delete(
-    '/friend-request/:senderId/decline', 
-    protectRoute, 
-    declineFriendRequest
-);
+
 
 export default router;

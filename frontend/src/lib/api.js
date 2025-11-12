@@ -60,6 +60,11 @@ export async function acceptFriendRequest(requestId) {
     return response.data;
 }
 
+export const declineFriendRequest = async (requestId) => {
+    const response = await axiosInstance.delete(`/users/friend-request/${requestId}/decline`);
+    return response.data;
+};
+
 export async function getStreamToken() {
     const response = await axiosInstance.get("/chat/token");
     return response.data;
@@ -102,4 +107,34 @@ export const addComment = async (postId, text) => {
 export const getPostById = async (postId) => {
     const response = await axiosInstance.get(`/posts/${postId}`);
     return response.data;
+};
+export const getUsersFriends = async () => {
+    const response = await axiosInstance.get('/users/friends');
+    return response.data;
+};
+
+export const createGroup = async ({ name, memberIds }) => {
+    const response = await axiosInstance.post('/groups/create', { name, memberIds });
+    return response.data;
+};
+
+export const getVideoToken = async () => {
+    const response = await axiosInstance.get('/groups/video-token');
+    return response.data;
+};
+
+export const startGroupCall = async (groupId) => {
+    const response = await axiosInstance.post(`/groups/${groupId}/start-call`);
+    return response.data;
+};
+export const addMembersToGroup = async (groupId, memberIds) => {
+    // Gọi: POST /api/groups/:groupId/add-members
+    const response = await axiosInstance.post(`/groups/${groupId}/add-members`, { memberIds });
+    return response.data;
+};
+
+export const removeMemberFromGroup = async (groupId, memberId) => {
+    // Gọi: DELETE /api/groups/:groupId/remove-member/:memberId
+    const response = await axiosInstance.delete(`/groups/${groupId}/remove-member/${memberId}`);
+    return response.data;
 };

@@ -1,43 +1,43 @@
-import { streamChatClient, streamVideoClient } from '../lib/stream.js';
+import { streamChatClient, streamVideoClient, generateVideoUserToken } from '../lib/stream.js';
 import Group from '../models/Group.js';
 import { v4 as uuidv4 } from 'uuid';
 
 // 1. Tạo nhóm
 export const createGroup = async (req, res) => {
-    try {
-        const { name, memberIds } = req.body; // Tên nhóm và mảng ID các thành viên
-        const creatorId = req.user._id.toString(); // Lấy từ middleware protectRoute
+    try {
+        const { name, memberIds } = req.body; 
+        const creatorId = req.user._id.toString();
 
-        if (!name || !memberIds || memberIds.length === 0) {
-            return res.status(400).json({ error: 'Tên nhóm và thành viên là bắt buộc' });
-        }
+        if (!name || !memberIds || memberIds.length === 0) {
+            return res.status(400).json({ error: 'Tên nhóm và thành viên là bắt buộc' });
+        }
 
-        const groupId = uuidv4();
+        const allMemberIds = [creatorId, ...memberIds];
+        const groupId = uuidv4();
 
-        const channel = streamChatClient.channel('messaging', groupId, {
-            name: name,
-            created_by_id: creatorId,
-            invites: memberIds,
-            members: [creatorId]
-        });
+        const channel = streamChatClient.channel('messaging', groupId, {
+            name: name,
+            created_by_id: creatorId,
+            members: allMemberIds // Thêm trực tiếp
+        });
 
-        const channelData = await channel.create();
+        const channelData = await channel.create();
 
-        const newGroup = new Group({
-            name,
-            streamChannelId: channelData.channel.id,
-            streamChannelCid: channelData.channel.cid,
-            admin: creatorId,
-            members: [creatorId]
-        });
-        await newGroup.save();
+        const newGroup = new Group({
+            name,
+            streamChannelId: channelData.channel.id,
+            streamChannelCid: channelData.channel.cid,
+            admin: creatorId,
+            members: allMemberIds
+        });
+        await newGroup.save();
 
-        res.status(201).json({ message: 'Tạo nhóm thành công', group: newGroup, channel: channelData.channel });
+        res.status(201).json({ message: 'Tạo nhóm thành công', group: newGroup, channel: channelData.channel });
 
-    } catch (error) {
-        console.error('Lỗi tạo nhóm:', error);
-        res.status(500).json({ error: 'Lỗi server' });
-    }
+    } catch (error) {
+        console.error('Lỗi tạo nhóm:', error);
+        res.status(500).json({ error: 'Lỗi server' });
+    }
 };
 
 // 2. Chấp nhận lời mời
@@ -135,7 +135,7 @@ export const removeMember = async (req, res) => {
 export const getVideoToken = (req, res) => {
     try {
         const userId = req.user._id.toString();
-        const token = streamVideoClient.createToken(userId);
+        const token = generateVideoUserToken({ user_id: userId });
         res.status(200).json({ token });
     } catch (error) {
         console.error('Lỗi tạo video token:', error);
@@ -164,7 +164,6 @@ export const startGroupCall = async (req, res) => {
             call_id: callId,
             user: { 
                 id: userId, 
-                // SỬA LẠI DÙNG `fullName` TỪ MODEL `User.js` BẠN CUNG CẤP
                 name: req.user.fullName 
             },
         });
