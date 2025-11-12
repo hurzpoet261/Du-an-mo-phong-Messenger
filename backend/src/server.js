@@ -12,6 +12,8 @@ import postRoutes from "./routes/post.route.js";
 
 import searchRoutes from "./routes/search.route.js";
 
+import groupRoutes from "./routes/group.route.js";
+
 import { connectDB } from "./lib/db.js";
 
 const app = express();
@@ -36,6 +38,8 @@ app.use("/api/chat", chatRoutes);
 app.use("/api/posts", postRoutes);
 
 app.use("/api/search", searchRoutes);
+
+app.use("/api/groups", groupRoutes);
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../frontend/dist")));

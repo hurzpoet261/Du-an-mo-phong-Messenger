@@ -12,6 +12,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@stream-io/node-sdk": "^0.7.19",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.8.0",
     "cookie-parser": "^1.4.7",
@@ -23,7 +24,8 @@
     "mongodb": "^6.20.0",
     "mongoose": "^8.13.2",
     "multer": "^2.0.2",
-    "stream-chat": "^8.60.0"
+    "stream-chat": "^8.60.0",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
