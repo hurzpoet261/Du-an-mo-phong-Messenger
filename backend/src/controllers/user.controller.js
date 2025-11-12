@@ -332,3 +332,31 @@ export async function getMyContext(req, res) {
     res.status(500).json({ message: "Internal Server Error" });
   }
 }
+
+export const declineFriendRequest = async (req, res) => {
+    try {
+        // ID của người gửi lời mời, lấy từ URL params
+        const { senderId } = req.params; 
+        
+        // ID của bạn (người nhận, đang đăng nhập), lấy từ middleware protectRoute
+        const receiverId = req.user._id; 
+
+        // Tìm và xóa lời mời kết bạn trong model FriendRequest
+        const result = await FriendRequest.deleteOne({
+            sender: senderId,
+            receiver: receiverId
+        });
+
+        // Kiểm tra xem có thực sự xóa được lời mời nào không
+        if (result.deletedCount === 0) {
+            // Có thể lời mời không tồn tại hoặc đã được xử lý
+            return res.status(404).json({ message: "Không tìm thấy lời mời kết bạn" });
+        }
+
+        res.status(200).json({ success: true, message: "Đã từ chối lời mời kết bạn" });
+
+    } catch (error) {
+        console.log("Error in declineFriendRequest controller:", error.message);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};

@@ -34,7 +34,8 @@ import {
    getOutgoingFriendReqs,
    getRecommendedUsers,
    sendFriendRequest,
-   getMyContext, 
+   getMyContext,
+   declineFriendRequest, 
 } from "../controllers/user.controller.js";
 
 const router = express.Router();
@@ -56,5 +57,11 @@ router.get("/outgoing-friend-requests", getOutgoingFriendReqs);
 // ==========================================================
 // GET /api/users/me/context
 router.get("/me/context", getMyContext);
+
+router.delete(
+    '/friend-request/:senderId/decline', 
+    protectRoute, 
+    declineFriendRequest
+);
 
 export default router;
