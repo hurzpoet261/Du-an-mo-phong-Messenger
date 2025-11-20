@@ -108,16 +108,16 @@ function StatusCreationForm({ currentUser, onPostCreated }) {
                                         <img 
                                             src={fileObj.previewUrl} 
                                             alt="preview" 
-                                            className="w-auto h-full object-contain" // 🟢 Cập nhật object-contain
+                                            className="w-auto h-full object-contain" 
                                         />
                                     ) : (
                                         <video 
                                             src={fileObj.previewUrl} 
-                                            className="w-auto h-full object-contain" // 🟢 Cập nhật object-contain
+                                            className="w-auto h-full object-contain" 
                                             controls={false} 
-                                            autoPlay={false} // Không tự động phát
-                                            muted // Tắt tiếng để tránh gây ồn
-                                            loop // Lặp lại video preview
+                                            autoPlay={false}
+                                            muted
+                                            loop 
                                         />
                                     )}
                                     <button 

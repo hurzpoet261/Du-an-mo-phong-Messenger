@@ -6,9 +6,9 @@ function NoNotificationsFound() {
       <div className="size-16 rounded-full bg-base-300 flex items-center justify-center mb-4">
         <BellIcon className="size-8 text-base-content opacity-40" />
       </div>
-      <h3 className="text-lg font-semibold mb-2">No notifications yet</h3>
+      <h3 className="text-lg font-semibold mb-2">Không có thông báo</h3>
       <p className="text-base-content opacity-70 max-w-md">
-        When you receive friend requests or messages, they'll appear here.
+        Khi bạn nhận được lời mời kết bạn hoặc tin nhắn, chúng sẽ xuất hiện ở đây.
       </p>
     </div>
   );

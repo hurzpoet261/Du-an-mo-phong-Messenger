@@ -53,11 +53,11 @@ const UserSearchResultCard = ({
                 <div className="flex flex-wrap gap-1.5 mb-3">
                     <span className="badge badge-secondary text-xs">
                         {getLanguageFlag(user.nativeLanguage)}
-                        Native: {user.nativeLanguage || 'N/A'}
+                        Quốc gia: {user.nativeLanguage || 'N/A'}
                     </span>
                     <span className="badge badge-outline text-xs">
                         {getLanguageFlag(user.learningLanguage)}
-                        Learning: {user.learningLanguage || 'N/A'}
+                        Ngôn ngữ: {user.learningLanguage || 'N/A'}
                     </span>
                 </div>
 
@@ -70,11 +70,11 @@ const UserSearchResultCard = ({
                     disabled={isRequestSent} 
                 >
                     {isFriend ? (
-                        <> <MessageSquare className="size-4 mr-2" /> Message </>
+                        <> <MessageSquare className="size-4 mr-2" /> Tin nhắn </>
                     ) : isRequestSent ? (
-                        <> <CheckCircleIcon className="size-4 mr-2" /> Request Sent </>
+                        <> <CheckCircleIcon className="size-4 mr-2" /> Đã gửi lời mời </>
                     ) : (
-                        <> <UserPlusIcon className="size-4 mr-2" /> Send Request </>
+                        <> <UserPlusIcon className="size-4 mr-2" /> Gửi lời mời </>
                     )}
                 </button>
             </div>

@@ -3,7 +3,6 @@ import { ShipWheelIcon } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom"; 
 import useLogin from "../hooks/useLogin"; // Hook Login của bạn
 
-// Mảng các đường dẫn ảnh cho carousel
 const carouselImages = [
   "../src/assets/1.jpg",
   "../src/assets/2.jpg",
@@ -22,7 +21,7 @@ const LoginPage = () => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    // Thực hiện mutation, hook useLogin của bạn sẽ xử lý onSuccess và chuyển hướng
+
     loginMutation(loginData); 
   };
 
@@ -63,9 +62,9 @@ const LoginPage = () => {
             <form onSubmit={handleLogin}>
               <div className="space-y-4">
                 <div>
-                  <h2 className="text-xl font-semibold">Welcome Back</h2>
+                  <h2 className="text-xl font-semibold">Chào mừng trở lại</h2>
                   <p className="text-sm opacity-70">
-                    Sign in to your account to continue your language journey
+                    Đăng nhập vào tài khoản của bạn
                   </p>
                 </div>
 
@@ -86,7 +85,7 @@ const LoginPage = () => {
 
                   <div className="form-control w-full space-y-2">
                     <label className="label">
-                      <span className="label-text">Password</span>
+                      <span className="label-text">Mật khẩu</span>
                     </label>
                     <input
                       type="password"
@@ -102,18 +101,18 @@ const LoginPage = () => {
                     {isPending ? (
                       <>
                         <span className="loading loading-spinner loading-xs"></span>
-                        Signing in...
+                        Đang đăng nhập...
                       </>
                     ) : (
-                      "Sign In"
+                      "Đăng nhập"
                     )}
                   </button>
 
                   <div className="text-center mt-4">
                     <p className="text-sm">
-                      Don't have an account?{" "}
+                      Bạn chưa có tài khoản?{" "}
                       <Link to="/signup" className="text-primary hover:underline">
-                        Create one
+                        Tạo tài khoản
                       </Link>
                     </p>
                   </div>
@@ -151,9 +150,9 @@ const LoginPage = () => {
             
             {/* 3. TEXT SECTION */}
             <div className="text-center space-y-3 mt-6">
-              <h2 className="text-xl font-semibold">Connect with language partners worldwide</h2>
+              <h2 className="text-xl font-semibold">Kết nối với những người học ngôn ngữ trên toàn thế giới</h2>
               <p className="opacity-70">
-                Practice conversations, make friends, and improve your language skills together
+                Thực hành hội thoại, kết bạn và cải thiện kỹ năng ngôn ngữ cùng nhau
               </p>
             </div>
           </div>

@@ -50,12 +50,12 @@ const OnboardingPage = () => {
     <div className="min-h-screen bg-base-100 flex items-center justify-center p-4">
       <div className="card bg-base-200 w-full max-w-3xl shadow-xl">
         <div className="card-body p-6 sm:p-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-center mb-6">Complete Your Profile</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-center mb-6">Hoàn thành hồ sư của bạn</h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* PROFILE PIC CONTAINER */}
+
             <div className="flex flex-col items-center justify-center space-y-4">
-              {/* IMAGE PREVIEW */}
+
               <div className="size-32 rounded-full bg-base-300 overflow-hidden">
                 {formState.profilePic ? (
                   <img
@@ -74,7 +74,7 @@ const OnboardingPage = () => {
               <div className="flex items-center gap-2">
                 <button type="button" onClick={handleRandomAvatar} className="btn btn-accent">
                   <ShuffleIcon className="size-4 mr-2" />
-                  Generate Random Avatar
+                  Tạo ảnh đại diện ngẫu nhiên
                 </button>
               </div>
             </div>
@@ -82,7 +82,7 @@ const OnboardingPage = () => {
             {/* FULL NAME */}
             <div className="form-control">
               <label className="label">
-                <span className="label-text">Full Name</span>
+                <span className="label-text">Họ và tên</span>
               </label>
               <input
                 type="text"
@@ -97,7 +97,7 @@ const OnboardingPage = () => {
             {/* BIO */}
             <div className="form-control">
               <label className="label">
-                <span className="label-text">Bio</span>
+                <span className="label-text">Tiểu sử</span>
               </label>
               <textarea
                 name="bio"
@@ -113,15 +113,15 @@ const OnboardingPage = () => {
               {/* NATIVE LANGUAGE -- ĐÃ CẬP NHẬT */}
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text">Native Language</span>
+                  <span className="label-text">Ngôn ngữ mẹ đẻ</span>
                 </label>
                 <select
                   name="nativeLanguage"
                   value={formState.nativeLanguage}
                   onChange={(e) => setFormState({ ...formState, nativeLanguage: e.target.value })}
                   className="select select-bordered w-full"
-              _>
-                  <option value="">Select your native language</option>
+              >
+                  <option value="">Chọn ngôn ngữ mẹ đẻ của bạn</option>
                   {/* Dùng biến ALL_LANGUAGES đã import */}
                   {ALL_LANGUAGES.map((lang) => (
                     <option key={`native-${lang}`} value={lang.toLowerCase()}>
@@ -134,7 +134,7 @@ const OnboardingPage = () => {
               {/* LEARNING LANGUAGE -- ĐÃ CẬP NHẬT */}
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text">Learning Language</span>
+                  <span className="label-text">Ngôn ngữ bạn đang học</span>
                 </label>
                 <select   
                   name="learningLanguage"
@@ -142,7 +142,7 @@ const OnboardingPage = () => {
                   onChange={(e) => setFormState({ ...formState, learningLanguage: e.target.value })}
                   className="select select-bordered w-full"
                 >
-                  <option value="">Select language you're learning</option>
+                  <option value="">Chọn ngôn ngữ bạn đang học</option>
                   {/* Dùng biến ALL_LANGUAGES đã import */}
                   {ALL_LANGUAGES.map((lang) => (
                     <option key={`learning-${lang}`} value={lang.toLowerCase()}>
@@ -156,7 +156,7 @@ const OnboardingPage = () => {
             {/* LOCATION -- ĐÃ CẬP NHẬT */}
            <div className="form-control">
               <label className="label">
-                <span className="label-text">Location (Country)</span>
+                <span className="label-text">Địa điểm (Quốc gia)</span>
               </label>
               <div className="relative">
                 <MapPinIcon className="absolute top-1/2 transform -translate-y-1/2 left-3 size-5 text-base-content opacity-70 z-10" />
@@ -166,7 +166,7 @@ const OnboardingPage = () => {
                   onChange={(e) => setFormState({ ...formState, location: e.target.value })}
                   className="select select-bordered w-full pl-10"
                 >
-                  <option value="">Select your country</option>
+                  <option value="">Chọn quốc gia của bạn</option>
                   {/* Dùng biến ALL_COUNTRIES đã import */}
                   {ALL_COUNTRIES.map((country) => (
                     <option key={country} value={country}>
@@ -183,12 +183,12 @@ const OnboardingPage = () => {
               {!isPending ? (
                 <>
                   <ShipWheelIcon className="size-5 mr-2" />
-                  Complete Onboarding
+                  Hoàn thành hồ sơ
                 </>
               ) : (
                 <>
                   <LoaderIcon className="animate-spin size-5 mr-2" />
-                  Onboarding...
+                  Đang hoàn thành...
   _             </>
               )}
             </button>

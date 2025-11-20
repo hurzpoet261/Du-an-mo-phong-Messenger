@@ -40,7 +40,7 @@ const CallPage = () => {
       if (!tokenData.token || !authUser || !callId) return;
 
       try {
-        console.log("Initializing Stream video client...");
+        console.log("Khởi tạo client video Stream...");
 
         const user = {
           id: authUser._id,
@@ -58,13 +58,13 @@ const CallPage = () => {
 
         await callInstance.join({ create: true });
 
-        console.log("Joined call successfully");
+        console.log("Tham gia cuộc gọi thành công");
 
         setClient(videoClient);
         setCall(callInstance);
       } catch (error) {
-        console.error("Error joining call:", error);
-        toast.error("Could not join the call. Please try again.");
+        console.error("Lỗi khi tham gia cuộc gọi:", error);
+        toast.error("Không thể tham gia cuộc gọi. Vui lòng thử lại sau.");
       } finally {
         setIsConnecting(false);
       }
@@ -86,7 +86,7 @@ const CallPage = () => {
           </StreamVideo>
         ) : (
           <div className="flex items-center justify-center h-full">
-            <p>Could not initialize call. Please refresh or try again later.</p>
+            <p>Không thể khởi tạo cuộc gọi. Vui lòng làm mới hoặc thử lại sau.</p>
           </div>
         )}
       </div>

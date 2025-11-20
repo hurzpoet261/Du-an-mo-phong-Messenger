@@ -10,11 +10,10 @@ const SearchPage = () => {
   const [results, setResults] = useState([]); 
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-  // State chứa danh sách bạn bè và yêu cầu đã gửi (được fetch khi mount)
+
   const [myContext, setMyContext] = useState({ friends: [], sentRequests: [] });
   const navigate = useNavigate();
 
-  // 1. Lấy Context Người dùng Hiện tại (Friends & Sent Requests)
   useEffect(() => {
     const fetchMyContext = async () => {
         try {
@@ -36,8 +35,6 @@ const SearchPage = () => {
     fetchMyContext();
   }, []); 
 
-  // ----------------------------------------------------------------------
-  // 🟢 HÀM XỬ LÝ SEARCH (Sử dụng tham số để đồng bộ)
   const handleSearch = async (e, forcedType = searchType) => { 
     if (e) e.preventDefault(); 
     const currentKeyword = keyword.trim();
@@ -155,7 +152,7 @@ const SearchPage = () => {
     }
   };
 
-  // PHẦN GIAO DIỆN
+
   return (
     <div className='p-4 md:p-8 max-w-7xl mx-auto'>
       <h1 className='text-3xl font-bold mb-6 hidden md:block'>Tìm kiếm</h1>

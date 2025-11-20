@@ -4,16 +4,15 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
 import { postService } from '../services/postService.js'; 
 import StatusItem from '../components/StatusItem.jsx'; 
-import useAuthUser from '../hooks/useAuthUser.js'; // 🟢 BẮT BUỘC: Import hook Auth
+import useAuthUser from '../hooks/useAuthUser.js'; 
 
 const PostDetailPage = () => {
     const { postId } = useParams();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
-    // 🟢 1. LẤY NGƯỜI DÙNG HIỆN TẠI
     const { authUser } = useAuthUser();
-    const currentUserId = authUser?._id; // Đây là ID của BẠN
+    const currentUserId = authUser?._id; 
 
     const { data: post, isLoading, error } = useQuery({
         queryKey: ['postDetail', postId],
@@ -73,12 +72,11 @@ const PostDetailPage = () => {
                 <div className="p-4 pt-10">
                     <StatusItem 
                         post={post} 
-                        currentUserId={currentUserId} // 🟢 SỬA LỖI: Truyền ID người dùng đang đăng nhập
+                        currentUserId={currentUserId} // 
                         isModalView={true} 
                         updatePostInFeed={handleModalUpdate}
                         updateLikesInFeed={handleModalLikesUpdate}
-                        // 🟢 Thêm hàm xóa nếu cần (nếu StatusItem yêu cầu)
-                        // onDeleteSuccess={handleModalUpdate} 
+
                     />
                 </div>
 

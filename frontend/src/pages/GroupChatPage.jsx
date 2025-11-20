@@ -130,7 +130,7 @@ const GroupChatPage = () => {
         setChatClient(client);
         setChannel(currChannel);
 
-        // ✅ Xác định quyền admin (ưu tiên state, fallback sang data)
+        //  Xác định quyền admin
         const adminId =
           currChannel.state?.created_by?.id ||
           currChannel.data?.created_by_id ||
@@ -161,7 +161,7 @@ const GroupChatPage = () => {
         };
         currChannel.on("group-call-started", onGroupCallStarted);
 
-        // Lắng nghe cập nhật channel → cập nhật quyền admin khi có thay đổi
+        // Lắng nghe cập nhật channel => cập nhật quyền admin khi có thay đổi
         const onChannelUpdated = () => {
           const updatedAdminId =
             currChannel.state?.created_by?.id ||

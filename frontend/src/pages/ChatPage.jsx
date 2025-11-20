@@ -96,8 +96,8 @@ const ChatPage = () => {
         setChatClient(client);
         setChannel(currChannel);
       } catch (error) {
-        console.error("Error initializing chat:", error);
-        toast.error("Could not connect to chat. Please try again.");
+        console.error("Lỗi khi khởi tạo trò chuyện:", error);
+        toast.error("Không thể khởi tạo trò chuyện. Vui lòng thử lại sau.");
       } finally {
         setLoading(false);
       }
@@ -110,9 +110,9 @@ const ChatPage = () => {
     if (channel) {
       const callUrl = `${window.location.origin}/call/${channel.id}`;
       channel.sendMessage({
-        text: `I've started a video call. Join me here: ${callUrl}`,
+        text: `Tôi đã bắt đầu một cuộc gọi video. Tham gia cùng tôi tại đây: ${callUrl}`,
       });
-      toast.success("Video call link sent successfully!");
+      toast.success("Đã gửi liên kết cuộc gọi video thành công!");
     }
   };
 
@@ -124,7 +124,6 @@ const ChatPage = () => {
         <Channel channel={channel}>
           <div className="w-full relative">
             
-            {/* 🔴 Đã xóa các nút trôi nổi (floating buttons) */}
             
             <Window>
               {/* 🟢 SỬ DỤNG CUSTOM HEADER MỚI */}

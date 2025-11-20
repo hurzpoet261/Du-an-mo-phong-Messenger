@@ -26,7 +26,7 @@ const Sidebar = () => {
           }`}
         >
           <HomeIcon className="size-5 text-base-content opacity-70" />
-          <span>Home</span>
+          <span>Trang chủ</span>
         </Link>
 
         <Link
@@ -36,7 +36,7 @@ const Sidebar = () => {
           }`}
         >
           <MessageSquareText className="size-5 text-base-content opacity-70" />
-          <span>Chat</span>
+          <span>Trò chuyện</span>
         </Link>
         <Link
           to="/search"
@@ -45,7 +45,7 @@ const Sidebar = () => {
           }`}
         >
           <SearchIcon className="size-5 text-base-content opacity-70" />
-          <span>Search</span>
+          <span>Tìm kiếm</span>
         </Link>
 
         <Link
@@ -55,7 +55,7 @@ const Sidebar = () => {
           }`}
         >
           <UsersIcon className="size-5 text-base-content opacity-70" />
-          <span>Status Post</span>
+          <span>Bài đăng trạng thái</span>
         </Link>
 
         <Link
@@ -65,7 +65,7 @@ const Sidebar = () => {
           }`}
         >
           <BellIcon className="size-5 text-base-content opacity-70" />
-          <span>Notifications</span>
+          <span>Thông báo</span>
         </Link>
 
       </nav>

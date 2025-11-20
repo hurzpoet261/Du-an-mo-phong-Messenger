@@ -8,7 +8,6 @@ function StatusFeedPage() {
     const { isLoading, authUser } = useAuthUser(); 
     const [latestPost, setLatestPost] = useState(null); 
     
-    // Xử lý trạng thái Loading/Chưa đăng nhập...
     if (isLoading) {
         return (
              <div className="status-page-layout">
@@ -32,7 +31,6 @@ function StatusFeedPage() {
     }
 
     const handlePostCreated = (post) => {
-        // 🟢 SỬA LỖI: CHỈ LƯU TRỰC TIẾP BÀI POST NHẬN ĐƯỢC TỪ BE
         setLatestPost(post); 
     };
     

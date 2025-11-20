@@ -64,9 +64,9 @@ const SignUpPage = () => {
             <form onSubmit={handleSignup}>
               <div className="space-y-4">
                 <div>
-                  <h2 className="text-xl font-semibold">Create an Account</h2>
+                  <h2 className="text-xl font-semibold">Tạo tài khoản</h2>
                   <p className="text-sm opacity-70">
-                    Join MESSENGER and start your language learning adventure!
+                    Tham gia MESSENGER và bắt đầu hành trình chinh phục ngôn ngữ của bạn!
                   </p>
                 </div>
 
@@ -74,11 +74,11 @@ const SignUpPage = () => {
                   {/* FULLNAME */}
                   <div className="form-control w-full">
                     <label className="label">
-                      <span className="label-text">Full Name</span>
+                      <span className="label-text">Họ và tên</span>
                     </label>
                     <input
                       type="text"
-                      placeholder="YOUR NAME"
+                      placeholder="HỌ VÀ TÊN CỦA BẠN"
                       className="input input-bordered w-full"
                       value={signupData.fullName}
                       onChange={(e) => setSignupData({ ...signupData, fullName: e.target.value })}
@@ -102,7 +102,7 @@ const SignUpPage = () => {
                   {/* PASSWORD */}
                   <div className="form-control w-full">
                     <label className="label">
-                      <span className="label-text">Password</span>
+                      <span className="label-text">Mật khẩu</span>
                     </label>
                     <input
                       type="password"
@@ -113,7 +113,7 @@ const SignUpPage = () => {
                       required
                     />
                     <p className="text-xs opacity-70 mt-1">
-                      Password must be at least 6 characters long
+                      Mật khẩu phải có ít nhất 6 ký tự.
                     </p>
                   </div>
 
@@ -121,9 +121,9 @@ const SignUpPage = () => {
                     <label className="label cursor-pointer justify-start gap-2">
                       <input type="checkbox" className="checkbox checkbox-sm" required />
                       <span className="text-xs leading-tight">
-                        I agree to the{" "}
-                        <span className="text-primary hover:underline">terms of service</span> and{" "}
-                        <span className="text-primary hover:underline">privacy policy</span>
+                        Tôi đồng ý với{" "}
+                        <span className="text-primary hover:underline">điều khoản dịch vụ</span> và{" "}
+                        <span className="text-primary hover:underline">chính sách bảo mật</span>
                       </span>
                     </label>
                   </div>
@@ -142,9 +142,9 @@ const SignUpPage = () => {
 
                 <div className="text-center mt-4">
                   <p className="text-sm">
-                    Already have an account?{" "}
+                    Đã có tài khoản?{" "}
                     <Link to="/login" className="text-primary hover:underline">
-                      Sign in
+                      Đăng nhập
                     </Link>
                   </p>
                 </div>
@@ -167,9 +167,9 @@ const SignUpPage = () => {
             </div>
 
             <div className="text-center space-y-3 mt-6">
-              <h2 className="text-xl font-semibold">Connect with language partners worldwide</h2>
+              <h2 className="text-xl font-semibold">Kết nối với những người học ngôn ngữ trên toàn thế giới</h2>
               <p className="opacity-70">
-                Practice conversations, make friends, and improve your language skills together
+                Thực hành hội thoại, kết bạn và cải thiện kỹ năng ngôn ngữ cùng nhau
               </p>
             </div>
           </div>
