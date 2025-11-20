@@ -24,7 +24,7 @@ const STREAM_API_KEY = import.meta.env.VITE_STREAM_API_KEY;
 const CustomGroupHeader = ({
   channel,
   handleVideoCall,
-  isAdmin,
+  // isAdmin, // 🟢 BỎ: Không cần check admin ở đây để ẩn nút
   onOpenManageModal,
 }) => {
   const navigate = useNavigate();
@@ -62,15 +62,13 @@ const CustomGroupHeader = ({
         <Video size={24} />
       </button>
 
-      {/* Nút Quản lý (chỉ admin thấy) */}
-      {isAdmin && (
-        <button
-          onClick={onOpenManageModal}
-          className="btn btn-ghost btn-circle"
-        >
-          <Settings size={22} />
-        </button>
-      )}
+      {/* 🟢 SỬA LỖI: Nút Quản lý hiển thị cho TẤT CẢ mọi người */}
+      <button
+        onClick={onOpenManageModal}
+        className="btn btn-ghost btn-circle"
+      >
+        <Settings size={22} />
+      </button>
     </div>
   );
 };
@@ -130,7 +128,7 @@ const GroupChatPage = () => {
         setChatClient(client);
         setChannel(currChannel);
 
-        //  Xác định quyền admin
+        // Xác định quyền admin
         const adminId =
           currChannel.state?.created_by?.id ||
           currChannel.data?.created_by_id ||
@@ -161,7 +159,7 @@ const GroupChatPage = () => {
         };
         currChannel.on("group-call-started", onGroupCallStarted);
 
-        // Lắng nghe cập nhật channel => cập nhật quyền admin khi có thay đổi
+        // Lắng nghe cập nhật channel
         const onChannelUpdated = () => {
           const updatedAdminId =
             currChannel.state?.created_by?.id ||
@@ -223,7 +221,7 @@ const GroupChatPage = () => {
               <CustomGroupHeader
                 channel={channel}
                 handleVideoCall={handleGroupVideoCall}
-                isAdmin={isGroupAdmin}
+                // isAdmin={isGroupAdmin} // 🟢 BỎ: Không truyền prop này để ẩn nút nữa
                 onOpenManageModal={() => setIsManageModalOpen(true)}
               />
               <MessageList />
@@ -234,10 +232,11 @@ const GroupChatPage = () => {
         </Channel>
       </Chat>
 
-      {/* Modal quản lý (chỉ admin thấy) */}
-      {isManageModalOpen && isGroupAdmin && (
+      {/* 🟢 SỬA LỖI: Modal hiện với mọi người, chỉ truyền prop isAdmin xuống để Modal tự xử lý nút Xóa */}
+      {isManageModalOpen && (
         <ManageGroupModal
           channel={channel}
+          isAdmin={isGroupAdmin} // Modal cần biết user có phải admin không để hiện nút xóa
           onClose={() => setIsManageModalOpen(false)}
         />
       )}

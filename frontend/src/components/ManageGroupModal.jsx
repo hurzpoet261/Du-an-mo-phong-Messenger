@@ -5,17 +5,17 @@ import toast from 'react-hot-toast';
 import { X, Trash2, UserPlus } from 'lucide-react';
 import useAuthUser from '../hooks/useAuthUser.js';
 
-const ManageGroupModal = ({ channel, onClose }) => {
+// 🟢 Nhận prop 'isAdmin' từ GroupChatPage
+const ManageGroupModal = ({ channel, onClose, isAdmin }) => {
     const queryClient = useQueryClient();
     const { authUser } = useAuthUser();
     const [tab, setTab] = useState('members'); 
     
-    // 1. Lấy dữ liệu
+    // 1. Lấy dữ liệu từ channel
     const currentMembers = Object.values(channel.state.members);
     const groupId = channel.id;
-    // const isAdmin = authUser._id === channel.data.created_by_id; // Không cần check lại
 
-    // 2. Tải danh sách bạn bè
+    // 2. Tải danh sách bạn bè (để mời)
     const { data: friends, isLoading: isLoadingFriends } = useQuery({
         queryKey: ['friends'],
         queryFn: getUsersFriends,
@@ -53,6 +53,7 @@ const ManageGroupModal = ({ channel, onClose }) => {
     };
     
     const handleRemove = (memberId) => {
+        // Chặn nếu cố tình xóa chính mình (dù nút xóa không hiện, nhưng thêm check cho an toàn)
         if (memberId === authUser._id) {
             toast.error("Bạn không thể tự xóa chính mình.");
             return;
@@ -80,12 +81,15 @@ const ManageGroupModal = ({ channel, onClose }) => {
                 <button onClick={onClose} className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
                 <h3 className="font-bold text-lg mb-4">Quản lý Nhóm</h3>
 
+                {/* Tabs */}
                 <div className="tabs tabs-boxed mb-4">
                     <a className={`tab ${tab === 'members' ? 'tab-active' : ''}`} onClick={() => setTab('members')}>Thành viên ({currentMembers.length})</a> 
                     <a className={`tab ${tab === 'invite' ? 'tab-active' : ''}`} onClick={() => setTab('invite')}>Mời (Bạn bè)</a> 
                 </div>
 
+                {/* Nội dung Tab */}
                 <div className="max-h-80 overflow-y-auto">
+                    {/* TAB THÀNH VIÊN */}
                     {tab === 'members' && (
                         <div className="space-y-2">
                             {currentMembers.map(member => (
@@ -94,16 +98,23 @@ const ManageGroupModal = ({ channel, onClose }) => {
                                         <div className="avatar w-10 h-10 rounded-full">
                                             <img src={member.user.image || '/default-avatar.png'} alt={member.user.name} />
                                         </div>
-                                        <span className="font-medium">{member.user.name} {member.user_id === authUser._id && "(Bạn)"}</span>
-                                        {member.role === 'admin' && <span className="badge badge-primary badge-sm">Admin</span>}
+                                        <span className="font-medium">
+                                            {member.user.name} 
+                                            {member.user_id === authUser._id && " (Bạn)"}
+                                        </span>
+                                        {/* Hiển thị badge Admin nếu người này là người tạo nhóm */}
+                                        {member.user_id === channel.data.created_by_id && (
+                                            <span className="badge badge-primary badge-sm ml-2">Admin</span>
+                                        )}
                                     </div>
                                     
-                                    {/* 🟢 SỬA LỖI: Bỏ check 'isAdmin', chỉ check không phải chính mình */}
-                                    {member.user_id !== authUser._id && (
+                                    {/* 🟢 QUYỀN XÓA: Chỉ hiện nếu bạn là Admin VÀ người bị xóa không phải là bạn */}
+                                    {isAdmin && member.user_id !== authUser._id && (
                                         <button 
                                             className="btn btn-xs btn-ghost text-error" 
                                             onClick={() => handleRemove(member.user_id)}
                                             disabled={isRemoving}
+                                            title="Xóa khỏi nhóm"
                                         >
                                             <Trash2 size={16} />
                                         </button>
@@ -113,6 +124,7 @@ const ManageGroupModal = ({ channel, onClose }) => {
                         </div>
                     )}
 
+                    {/* TAB MỜI BẠN BÈ (Ai cũng thấy) */}
                     {tab === 'invite' && (
                         <div className="space-y-2">
                             {isLoadingFriends ? <div className="text-center p-4"><span className="loading loading-spinner"></span></div> : (
@@ -129,12 +141,12 @@ const ManageGroupModal = ({ channel, onClose }) => {
                                             onClick={() => handleInvite(friend._id)}
                                             disabled={isInviting}
                                         >
-                                            <UserPlus size={16} /> Mời
+                                            <UserPlus size={16} /> Thêm
                                         </button>
                                     </div>
                                 ))
                             )}
-                            {friendsToInvite.length === 0 && !isLoadingFriends && <p className="text-sm text-center p-4">Tất cả bạn bè đã ở trong nhóm.</p>}
+                            {friendsToInvite.length === 0 && !isLoadingFriends && <p className="text-sm text-center p-4">Không còn bạn bè nào để thêm.</p>}
                         </div>
                     )}
                 </div>

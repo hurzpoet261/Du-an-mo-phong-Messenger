@@ -12,6 +12,7 @@ import StatusFeedPage from "./pages/StatusFeedPage.jsx";
 import SearchPage from "./pages/SearchPage.jsx";
 import ChatListPage from "./pages/ChatListPage.jsx";
 import GroupChatPage from "./pages/GroupChatPage.jsx";
+import GroupCallPage from "./pages/GroupCallPage.jsx";
 
 import PostDetailPage from "./pages/PostDetailPage.jsx"; 
 
@@ -104,6 +105,16 @@ const App = () => {
             )
           }
         />
+        <Route
+            path="/group-call/:callId"
+            element={
+              isAuthenticated ? (
+                <GroupCallPage />
+                ) : (
+                <Navigate to="/login" />
+                )
+              }
+        />
 
         <Route
           path="/chat/:id"
