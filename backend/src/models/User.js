@@ -47,6 +47,9 @@ const userSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    interests: [
+        { type: String }
+    ],
   },
   { timestamps: true }
 );

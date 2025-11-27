@@ -54,6 +54,7 @@ router.get("/friend-requests", getFriendRequests);
 router.get("/outgoing-friend-requests", getOutgoingFriendReqs);
 
 router.get("/me/context", getMyContext);
+router.get("/search", protectRoute, globalSearch);
 
 
 

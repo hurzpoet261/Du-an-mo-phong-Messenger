@@ -70,17 +70,6 @@ export async function getStreamToken() {
     return response.data;
 }
 
-export const performSearch = async (query, searchType, sortBy) => {
-    const response = await axiosInstance.get("/search", {
-        params: {
-            q: query,
-            type: searchType,
-            sort: sortBy
-        }
-    });
-    return response.data;
-};
-
 export const createPost = async (formData) => {
     const response = await axiosInstance.post("/posts/", formData);
     return response.data;
@@ -137,4 +126,11 @@ export const removeMemberFromGroup = async (groupId, memberId) => {
     // Gọi: DELETE /api/groups/:groupId/remove-member/:memberId
     const response = await axiosInstance.delete(`/groups/${groupId}/remove-member/${memberId}`);
     return response.data;
+};
+export const performSearch = async (params) => {
+    // params bao gồm: keyword, type, interests (string), location, language...
+    const response = await axiosInstance.get("/search", {
+        params: params 
+    });
+    return response.data;
 };

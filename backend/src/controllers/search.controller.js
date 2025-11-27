@@ -2,55 +2,99 @@ import User from "../models/User.js";
 import Post from "../models/Post.js";
 
 /**
- * @desc    Tìm kiếm theo loại (User hoặc Post)
- * @route   GET /api/search?keyword=...&type=...
- * @access  Private (được bảo vệ bởi protectRoute)
+ * @desc    Tìm kiếm đa năng (User hoặc Post) với bộ lọc nâng cao
+ * @route   GET /api/search
+ * @access  Private
  */
 export const globalSearch = async (req, res) => {
-  // Lấy thêm 'type' từ query
-  const { keyword, type } = req.query;
-  const currentUserId = req.user._id;
-
-  if (!keyword || keyword.trim() === "") {
-    return res.status(400).json({ message: "Vui lòng nhập từ khóa tìm kiếm" });
-  }
-
-  // BẮT BUỘC: Phải có 'type' là 'users' hoặc 'posts'
-  if (!type || (type !== 'users' && type !== 'posts')) {
-    return res.status(400).json({ message: "Loại tìm kiếm không hợp lệ (phải là 'users' hoặc 'posts')" });
-  }
-
   try {
-    const searchQuery = { $regex: keyword, $options: "i" };
-    let results = []; // Khởi tạo mảng kết quả rỗng
+    // 1. Lấy tất cả các tham số từ Query String
+    const { 
+        keyword, 
+        type, 
+        interests,      // Dạng chuỗi: "Music,Travel"
+        location, 
+        nativeLanguage, 
+        learningLanguage 
+    } = req.query;
 
-    // LOGIC RẼ NHÁNH MỚI
-    if (type === 'users') {
-      // 1. Nếu type=users, CHỈ tìm kiếm User
-      results = await User.find({
-        $and: [
-          { _id: { $ne: currentUserId } },
-          { $or: [{ fullName: searchQuery }, { email: searchQuery }] },
-        ],
-      })
-        .select("fullName profilePic bio nativeLanguage learningLanguage") // Lấy đủ trường cho FriendCard
-        .limit(15); // Giới hạn 15 người
+    const currentUserId = req.user._id;
 
-    } else if (type === 'posts') {
-      // 2. Nếu type=posts, CHỈ tìm kiếm Post
-      results = await Post.find({ content: searchQuery })
-        .populate("author", "fullName profilePic") // Lấy đủ trường cho Postcard
-        .sort({ createdAt: -1 })
-        .limit(15); // Giới hạn 15 bài
+    // 2. Validate loại tìm kiếm
+    if (!type || (type !== 'users' && type !== 'posts')) {
+      return res.status(400).json({ message: "Loại tìm kiếm không hợp lệ" });
     }
 
-    // 3. Trả về một mảng kết quả duy nhất
-    // Tên key là 'results'
+    let results = [];
+
+    // =========================================================
+    // 🟢 TRƯỜNG HỢP 1: TÌM KIẾM NGƯỜI DÙNG (USERS)
+    // =========================================================
+    if (type === 'users') {
+        // Khởi tạo query cơ bản: Loại trừ chính mình
+        let query = { _id: { $ne: currentUserId } };
+
+        // A. Nếu có từ khóa -> Tìm theo Tên hoặc Email
+        if (keyword && keyword.trim() !== "") {
+            const searchRegex = { $regex: keyword, $options: "i" };
+            query.$or = [
+                { fullName: searchRegex },
+                { email: searchRegex }
+            ];
+        }
+
+        // B. Lọc theo Quốc gia (Chính xác)
+        if (location) {
+            query.location = location;
+        }
+
+        // C. Lọc theo Ngôn ngữ (Chính xác)
+        if (nativeLanguage) {
+            query.nativeLanguage = nativeLanguage; // Ví dụ: 'vietnamese'
+        }
+        if (learningLanguage) {
+            query.learningLanguage = learningLanguage; // Ví dụ: 'english'
+        }
+
+        // D. Lọc theo Sở thích (Quan trọng)
+        // Tìm người dùng có CHỨA ít nhất một trong các sở thích đã chọn
+        if (interests) {
+            const interestArray = interests.split(','); // Chuyển "Music,Travel" -> ["Music", "Travel"]
+            if (interestArray.length > 0) {
+                // Sử dụng toán tử $in để tìm mảng chứa giá trị
+                query.interests = { $in: interestArray };
+            }
+        }
+
+        // Thực thi truy vấn
+        results = await User.find(query)
+            .select("fullName profilePic bio nativeLanguage learningLanguage location interests") // Lấy thêm interests
+            .limit(20);
+    } 
+    
+    // =========================================================
+    // 🟢 TRƯỜNG HỢP 2: TÌM KIẾM BÀI VIẾT (POSTS)
+    // =========================================================
+    else if (type === 'posts') {
+        // Với Post, bắt buộc phải có keyword (hoặc bạn có thể bỏ check này nếu muốn hiện tất cả)
+        if (!keyword || keyword.trim() === "") {
+             // Trả về rỗng nếu không có keyword, hoặc trả về bài mới nhất tùy logic bạn
+             return res.status(200).json({ results: [] });
+        }
+
+        const searchRegex = { $regex: keyword, $options: "i" };
+
+        results = await Post.find({ content: searchRegex })
+            .populate("author", "fullName profilePic") 
+            .sort({ createdAt: -1 }) // Mới nhất lên đầu
+            .limit(20);
+    }
+
+    // 3. Trả về kết quả
     res.status(200).json({ results });
 
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Lỗi server khi tìm kiếm", error: error.message });
+    console.error("Global search error:", error);
+    res.status(500).json({ message: "Lỗi server khi tìm kiếm", error: error.message });
   }
 };
