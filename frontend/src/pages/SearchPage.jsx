@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, User as UserIcon, FileText as FileTextIcon, Filter, X } from 'lucide-react'; // Thêm icon Filter, X
 import UserSearchResultCard from '../components/UserSearchResultCard.jsx'; 
 import PostcardSearchResult from '../components/PostcardSearchResult.jsx'; 
-import { ALL_COUNTRIES, ALL_LANGUAGES, INTERESTS_LIST } from "../constants"; // Import constants
+import { ALL_COUNTRIES, ALL_LANGUAGES, INTERESTS_LIST } from "../constants";
 
 const SearchPage = () => {
   const [keyword, setKeyword] = useState('');
