@@ -1,6 +1,4 @@
 import mongoose from "mongoose";
-
-// commentSchema giữ nguyên, không thay đổi
 const commentSchema = new mongoose.Schema(
   {
     text: {

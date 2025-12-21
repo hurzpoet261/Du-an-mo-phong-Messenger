@@ -124,17 +124,27 @@ const HomePage = () => {
                       </div>
 
                       {/* Languages with flags */}
-                      <div className="flex flex-wrap gap-1.5">
-                        <span className="badge badge-secondary">
+                      <div className="flex flex-wrap gap-1.5 mb-3">
+                        
+                        {/* --- PHẦN 1: QUỐC GIA & NGÔN NGỮ --- */}
+                        <span className="badge badge-secondary flex items-center gap-1">
                           {getLanguageFlag(user.nativeLanguage)}
-                          Native: {capitialize(user.nativeLanguage)}
+                          <span>Quốc gia: {capitialize(user.nativeLanguage)}</span>
                         </span>
-                        <span className="badge badge-outline">
+                        
+                        <span className="badge badge-outline flex items-center gap-1">
                           {getLanguageFlag(user.learningLanguage)}
-                          Learning: {capitialize(user.learningLanguage)}
+                          <span>Ngôn ngữ: {capitialize(user.learningLanguage)}</span>
                         </span>
-                      </div>
 
+                        {/* --- PHẦN 2: SỞ THÍCH (Nằm cùng luồng) --- */}
+                        {user.interests && user.interests.length > 0 && user.interests.map((interest, index) => (
+                          <span key={index} className="badge badge-neutral badge-outline opacity-80">
+                            #{capitialize(interest)}
+                          </span>
+                        ))}
+
+                      </div>
                       {user.bio && <p className="text-sm opacity-70">{user.bio}</p>}
 
                       {/* Action button */}
