@@ -5,8 +5,7 @@ import toast from "react-hot-toast";
 import { completeOnboarding } from "../lib/api";
 import { LoaderIcon, MapPinIcon, ShipWheelIcon, ShuffleIcon, CameraIcon, Heart } from "lucide-react";
 
-// 🟢 IMPORT INTERESTS_LIST TỪ CONSTANTS
-import { ALL_LANGUAGES, ALL_COUNTRIES, INTERESTS_LIST } from "../constants";
+import { ALL_LANGUAGES, ALL_COUNTRIES, INTERESTS_LIST } from "../constants/index.js";
 
 const OnboardingPage = () => {
   const { authUser } = useAuthUser();
@@ -39,7 +38,7 @@ const OnboardingPage = () => {
   };
 
   const handleRandomAvatar = () => {
-    const idx = Math.floor(Math.random() * 100) + 1; 
+    const idx = Math.floor(Math.random() * 100) + 1;
     const randomAvatar = `https://avatar.iran.liara.run/public/${idx}.png`;
     setFormState({ ...formState, profilePic: randomAvatar });
     toast.success("Đã tạo ảnh đại diện ngẫu nhiên!");
@@ -104,11 +103,11 @@ const OnboardingPage = () => {
                 value={formState.bio}
                 onChange={(e) => setFormState({ ...formState, bio: e.target.value })}
                 className="textarea textarea-bordered h-24"
-                placeholder="Giới thiệu ngắn gọn về bản thân và mục tiêu học tập..."
+                placeholder="Giới thiệu ngắn gọn về bản thân..."
               />
             </div>
 
-            {/* --- INTERESTS (SỬ DỤNG CONSTANT MỚI) --- */}
+            {/* --- INTERESTS --- */}
             <div className="form-control">
                 <label className="label">
                     <span className="label-text font-medium flex items-center gap-2">
@@ -123,9 +122,9 @@ const OnboardingPage = () => {
                                 key={interest}
                                 onClick={() => toggleInterest(interest)}
                                 className={`badge badge-lg cursor-pointer transition-all select-none border ${
-                                    isSelected 
-                                        ? 'badge-primary shadow-md scale-105 border-primary' 
-                                        : 'badge-ghost opacity-70 hover:opacity-100 bg-base-200 border-base-300'
+                                    isSelected
+                                    ? 'badge-primary shadow-md scale-105 border-primary'
+                                    : 'badge-ghost opacity-70 hover:opacity-100 bg-base-200 border-base-300'
                                 }`}
                             >
                                 {interest}
@@ -151,6 +150,7 @@ const OnboardingPage = () => {
                 >
                   <option value="">Chọn ngôn ngữ...</option>
                   {ALL_LANGUAGES.map((lang) => (
+                    // Using lowercase value to match backend convention if needed
                     <option key={`native-${lang}`} value={lang.toLowerCase()}>{lang}</option>
                   ))}
                 </select>
@@ -171,7 +171,7 @@ const OnboardingPage = () => {
               </div>
             </div>
 
-            {/* --- LOCATION --- */}
+            {/* --- LOCATION (Fixes "Thai" vs "Thailand" issue) --- */}
             <div className="form-control">
               <label className="label"><span className="label-text font-medium">Quốc gia</span></label>
               <div className="relative">

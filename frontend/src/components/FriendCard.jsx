@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { capitialize } from "../lib/utils"; 
 import { LANGUAGE_TO_FLAG } from "../constants";
 
 const FriendCard = ({ friend }) => {
@@ -8,23 +9,43 @@ const FriendCard = ({ friend }) => {
         {/* USER INFO */}
         <div className="flex items-center gap-3 mb-3">
           <div className="avatar size-12">
-            <img src={friend.profilePic} alt={friend.fullName} />
+            <img src={friend.profilePic || "/avatar.png"} alt={friend.fullName} className="rounded-full object-cover"/>
           </div>
-          <h3 className="font-semibold truncate">{friend.fullName}</h3>
+          <div className="overflow-hidden">
+             {/* Dùng capitalize cho tên */}
+             <h3 className="font-semibold truncate">{capitialize(friend.fullName)}</h3>
+          </div>
         </div>
 
-        <div className="flex flex-wrap gap-1.5 mb-3">
+        {/* LANGUAGES */}
+        <div className="flex flex-wrap gap-1.5 mb-2">
           <span className="badge badge-secondary text-xs">
-            {getLanguageFlag(friend.nativeLanguage)}
-            Quốc gia: {friend.nativeLanguage}
+            {getLanguageFlag(friend.nativeLanguage) && (
+                <img src={getLanguageFlag(friend.nativeLanguage)} alt="flag" className="h-3 mr-1 inline-block rounded-[1px]"/>
+            )}
+            Quốc gia: {capitialize(friend.nativeLanguage)}
           </span>
           <span className="badge badge-outline text-xs">
-            {getLanguageFlag(friend.learningLanguage)}
-            Ngôn ngữ: {friend.learningLanguage}
+            {getLanguageFlag(friend.learningLanguage) && (
+                <img src={getLanguageFlag(friend.learningLanguage)} alt="flag" className="h-3 mr-1 inline-block rounded-[1px]"/>
+            )}
+            Ngôn ngữ: {capitialize(friend.learningLanguage)}
           </span>
         </div>
 
-        <Link to={`/chat/${friend._id}`} className="btn btn-outline w-full">
+        {/* --- PHẦN THÊM MỚI: SỞ THÍCH --- */}
+        {friend.interests && friend.interests.length > 0 && (
+            <div className="flex flex-wrap gap-1 mb-3">
+                {friend.interests.map((interest, index) => (
+                    <span key={index} className="badge badge-neutral badge-xs opacity-70">
+                        {capitialize(interest)}
+                    </span>
+                ))}
+            </div>
+        )}
+        {/* ------------------------------- */}
+
+        <Link to={`/chat/${friend._id}`} className="btn btn-outline w-full mt-auto">
           Tin nhắn
         </Link>
       </div>
@@ -35,10 +56,8 @@ export default FriendCard;
 
 export function getLanguageFlag(language) {
   if (!language) return null;
-
   const langLower = language.toLowerCase();
   const countryCode = LANGUAGE_TO_FLAG[langLower];
-
   if (countryCode) {
     return (
       <img
