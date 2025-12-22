@@ -1,56 +1,4 @@
-// import { StreamChat } from "stream-chat";
-// import { StreamClient } from "@stream-io/node-sdk"; 
-// import "dotenv/config";
-
-// const apiKey = process.env.STREAM_API_KEY; 
-// const apiSecret = process.env.STREAM_API_SECRET;
-
-
-// if (!apiKey || !apiSecret) {
-//   console.error("FATAL ERROR: Stream API key or Secret is missing.");
-
-//   throw new Error("Stream API key or Secret is missing from .env file");
-// }
-
-// export const streamChatClient = StreamChat.getInstance(apiKey, apiSecret);
-
-// export const streamVideoClient = new StreamClient(apiKey, apiSecret);
-
-// export const upsertStreamUser = async (userData) => {
-//   try {
-//     await streamChatClient.upsertUsers([userData]);
-//     return userData;
-//   } catch (error) {
-//     console.error("Error upserting Stream user:", error);
-//     throw error;
-//   }
-// };
-
-// export const generateStreamToken = (userId) => {
-//   try {
-//     const userIdStr = userId.toString();
-//     return streamChatClient.createToken(userIdStr);
-//   } catch (error) {
-//     console.error("Error generating Stream token:", error);
-//     throw error;
-//   }
-// };
-
-// export const generateVideoUserToken = ({ user_id, validity_in_seconds } = {}) => {
-//   try {
-
-//     return streamVideoClient.generateUserToken({
-//       user_id: user_id.toString(),
-//       validity_in_seconds: validity_in_seconds ?? 60 * 60, 
-//     });
-//   } catch (error) {
-//     console.error("Error generating Stream video token:", error);
-//     throw error;
-//   }
-// };
-
 import { StreamChat } from "stream-chat";
-// IMPORT CLIENT TỪ PACKAGE BẠN ĐÃ CÀI
 import { StreamClient } from "@stream-io/node-sdk"; 
 import "dotenv/config";
 
@@ -58,18 +6,11 @@ const apiKey = process.env.STREAM_API_KEY;
 const apiSecret = process.env.STREAM_API_SECRET;
 
 if (!apiKey || !apiSecret) {
-  console.error("FATAL ERROR: Stream API key or Secret is missing.");
   throw new Error("Stream API key or Secret is missing from .env file");
 }
 
-// 1. Client cho Chat
 export const streamChatClient = StreamChat.getInstance(apiKey, apiSecret);
-
-// 2. Client cho Video (dùng package @stream-io/node-sdk)
-// Chúng ta sẽ gọi nó là streamVideoClient cho nhất quán
 export const streamVideoClient = new StreamClient(apiKey, apiSecret);
-
-// --- Các hàm Helper ---
 
 export const upsertStreamUser = async (userData) => {
   try {
@@ -81,23 +22,22 @@ export const upsertStreamUser = async (userData) => {
   }
 };
 
+// 🟢 FIX LỖI 1: Lùi thời gian 'iat' (Issued At) lại 60 giây
 export const generateStreamToken = (userId) => {
-  try {
-    const userIdStr = userId.toString();
-    return streamChatClient.createToken(userIdStr);
-  } catch (error) {
-    console.error("Error generating Stream token:", error);
-    throw error;
-  }
+  const issuedAt = Math.floor(Date.now() / 1000) - 60; // Lùi 60s
+  // createToken(userId, expiration, issuedAt)
+  return streamChatClient.createToken(userId.toString(), undefined, issuedAt);
 };
 
-// Hàm tạo video token (DÙNG HÀM CỦA StreamClient)
-export const generateVideoUserToken = ({ user_id, validity_in_seconds } = {}) => {
+// 🟢 FIX LỖI 1 CHO VIDEO: Cũng lùi 60 giây
+export const generateVideoUserToken = (userId) => {
+  const issuedAt = Math.floor(Date.now() / 1000) - 60; // Lùi 60s
+
   try {
-    // Client này dùng phương thức `generateUserToken`
     return streamVideoClient.generateUserToken({
-      user_id: user_id.toString(),
-      validity_in_seconds: validity_in_seconds ?? 60 * 60, // Mặc định 1 giờ
+      user_id: userId.toString(),
+      validity_in_seconds: 60 * 60, 
+      iat: issuedAt, // Thêm tham số này để Stream biết token được tạo từ "quá khứ"
     });
   } catch (error) {
     console.error("Error generating Stream video token:", error);

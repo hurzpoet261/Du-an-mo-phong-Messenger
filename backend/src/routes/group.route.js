@@ -27,7 +27,7 @@ router.post('/:groupId/add-members', addMembers);
 router.delete('/:groupId/remove-member/:memberId', removeMember);
 
 // Gọi Video
-router.get('/video-token', getVideoToken); // Lấy token cho user
+router.get("/video-token", protectRoute, getVideoToken);
 router.post('/:groupId/start-call', startGroupCall); // Bắt đầu cuộc gọi
 
 export default router; 

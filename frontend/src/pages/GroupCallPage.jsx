@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import useAuthUser from "../hooks/useAuthUser";
 import { useQuery } from "@tanstack/react-query";
-import { getVideoToken } from "../lib/api"; // Dùng hàm getVideoToken
+import { getVideoToken } from "../lib/api";
 
 import {
   StreamVideo,
@@ -13,7 +13,7 @@ import {
   StreamTheme,
   CallingState,
   useCallStateHooks,
-  CallParticipantsList, // 🟢 Thêm cái này cho nhóm
+  // CallParticipantsList, // ❌ Đã loại bỏ component này
 } from "@stream-io/video-react-sdk";
 
 import "@stream-io/video-react-sdk/dist/css/styles.css";
@@ -22,99 +22,119 @@ import PageLoader from "../components/PageLoader";
 
 const STREAM_API_KEY = import.meta.env.VITE_STREAM_API_KEY;
 
+// ==========================================
+// PHẦN LOGIC KẾT NỐI (GIỮ NGUYÊN Y HỆT BẢN TRƯỚC ĐỂ ĐẢM BẢO HOẠT ĐỘNG)
+// ==========================================
 const GroupCallPage = () => {
   const { callId } = useParams();
+  const { authUser } = useAuthUser();
+  const navigate = useNavigate();
   const [client, setClient] = useState(null);
   const [call, setCall] = useState(null);
-  const { authUser } = useAuthUser();
 
-  // Lấy Video Token
   const { data: tokenData } = useQuery({
-    queryKey: ["videoToken"], // Key khác với chat
+    queryKey: ["videoToken"],
     queryFn: getVideoToken,
     enabled: !!authUser,
   });
+
+  const connectionRef = useRef({ client: null, call: null });
 
   useEffect(() => {
     if (!tokenData?.token || !authUser || !callId) return;
 
     const initCall = async () => {
-      try {
-        const user = {
-          id: authUser._id,
-          name: authUser.fullName,
-          image: authUser.profilePic,
-        };
+      if (connectionRef.current.client) return;
 
-        const videoClient = new StreamVideoClient({
+      try {
+        const _client = new StreamVideoClient({
           apiKey: STREAM_API_KEY,
-          user,
+          user: {
+            id: authUser._id,
+            name: authUser.fullName,
+            image: authUser.profilePic,
+          },
           token: tokenData.token,
         });
 
-        const callInstance = videoClient.call("default", callId);
-        await callInstance.join({ create: true });
+        const _call = _client.call("default", callId);
+        await _call.join({ create: true });
 
-        setClient(videoClient);
-        setCall(callInstance);
+        connectionRef.current = { client: _client, call: _call };
+        setClient(_client);
+        setCall(_call);
       } catch (error) {
-        console.error("Lỗi tham gia cuộc gọi nhóm:", error);
-        toast.error("Không thể tham gia cuộc gọi.");
+        console.error("Lỗi Video Call:", error);
+        toast.error("Không thể kết nối. Vui lòng F5.");
+        navigate("/chat");
       }
     };
 
     initCall();
 
-    // Cleanup
     return () => {
-        if (client) client.disconnectUser();
-        if (call) call.leave();
+      const cleanup = async () => {
+        const { client: c, call: cl } = connectionRef.current;
+        if (cl) await cl.leave().catch((e) => console.warn(e));
+        if (c) await c.disconnectUser().catch((e) => console.warn(e));
+        if (window.stream) {
+          window.stream.getTracks().forEach((track) => track.stop());
+        }
+        connectionRef.current = { client: null, call: null };
+      };
+      cleanup();
     };
-  }, [tokenData, authUser, callId]);
+  }, [tokenData, authUser, callId, navigate]);
 
   if (!client || !call) return <PageLoader />;
 
   return (
-    <div className="h-screen w-full bg-gray-900 text-white">
+    // Đổi màu nền sang đen tuyền cho tập trung
+    <div className="h-screen w-full bg-black text-white">
       <StreamVideo client={client}>
         <StreamCall call={call}>
-           <GroupCallContent />
+          <GroupCallContent />
         </StreamCall>
       </StreamVideo>
     </div>
   );
 };
 
+// ==========================================
+// PHẦN GIAO DIỆN MỚI (ĐƠN GIẢN HÓA)
+// ==========================================
 const GroupCallContent = () => {
   const { useCallCallingState } = useCallStateHooks();
   const callingState = useCallCallingState();
   const navigate = useNavigate();
 
-  // Khi rời cuộc gọi, quay lại trang trước (Trang chat nhóm)
   if (callingState === CallingState.LEFT) {
-      navigate(-1);
-      return null;
+    setTimeout(() => {
+      navigate("/chat");
+    }, 0);
+    return <PageLoader />;
   }
 
   return (
     <StreamTheme>
-      <div className="flex h-full w-full flex-col">
-        {/* Khu vực Video */}
-        <div className="flex-1 flex overflow-hidden relative">
-            <div className="flex-1">
-                <SpeakerLayout participantsBarPosition="bottom" />
-            </div>
-            {/* Danh sách người tham gia (ẩn trên mobile nếu cần) */}
-            <div className="hidden md:block w-72 border-l border-gray-700 bg-gray-800 p-4">
-                 <h3 className="font-bold mb-4">Thành viên</h3>
-                 <CallParticipantsList onClose={() => {}} />
-            </div>
+      {/* Container chính: full màn hình, relative để chứa nút nổi */}
+      <div className="h-full w-full relative bg-black overflow-hidden font-sans">
+        
+        {/* 1. KHU VỰC VIDEO CHÍNH (Tràn viền) */}
+        <div className="h-full w-full flex items-center justify-center p-2 md:p-4">
+           {/* SpeakerLayout tự động sắp xếp lưới video đẹp mắt */}
+           <SpeakerLayout participantsBarPosition="bottom" />
         </div>
 
-        {/* Thanh điều khiển */}
-        <div className="p-4 flex justify-center bg-gray-800">
-            <CallControls />
+        {/* 2. THANH ĐIỀU KHIỂN NỔI (Floating Controls) */}
+        {/* Nằm ở dưới đáy, giữa màn hình, nổi lên trên video */}
+        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-20">
+          {/* Tạo hiệu ứng kính mờ (backdrop-blur) và bo tròn cho thanh điều khiển */}
+          <div className="bg-gray-900/60 backdrop-blur-md rounded-full p-2 border border-white/10 shadow-2xl transition-all hover:bg-gray-900/80">
+            <CallControls onLeave={() => navigate("/chat")} />
+          </div>
         </div>
+        
       </div>
     </StreamTheme>
   );
