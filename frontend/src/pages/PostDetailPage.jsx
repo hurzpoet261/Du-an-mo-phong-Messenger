@@ -75,7 +75,7 @@ const PostDetailPage = () => {
                         currentUserId={currentUserId} // 
                         isModalView={true} 
                         updatePostInFeed={handleModalUpdate}
-                        updateLikesInFeed={handleModalLikesUpdate}
+                        updateLikesInFeed={handleModalLikesUpdate}
 
                     />
                 </div>
