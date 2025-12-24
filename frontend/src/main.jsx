@@ -28,8 +28,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import 'stream-chat-react/dist/css/v2/index.css';
 import App from './App.jsx'
-// SỬA LỖI TẠI ĐÂY:
-import { BrowserRouter } from "react-router-dom"; // <-- ĐÃ SỬA
+import { BrowserRouter } from "react-router-dom"; 
 import {
   QueryClient,
   QueryClientProvider,
