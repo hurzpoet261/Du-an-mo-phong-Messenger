@@ -13,8 +13,8 @@ const generateTokenAndSetCookie = (userId, res) => {
   res.cookie("jwt", token, {
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngày
     httpOnly: true, // Chống XSS
-    sameSite: "strict", // Chống CSRF
-    secure: process.env.NODE_ENV === "production",
+    sameSite: "none",
+    secure: true,
   });
 };
 
