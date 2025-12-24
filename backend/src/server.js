@@ -24,7 +24,7 @@ const __dirname = path.resolve();
 app.use(
   cors({
     origin: ["http://localhost:5173",
-      "pbl-4-du-an-mern-messenger.vercel.app"],
+      "https://du-an-mo-phong-messenger.vercel.app"],
     credentials: true, // allow frontend to send cookies
   })
 );
